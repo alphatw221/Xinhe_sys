@@ -7,10 +7,11 @@ class Squad(models.Model):
     def __str__(self):
         return self.name
 
-class Worker(models.Model):
+class Warehouse(models.Model):
+
     name=models.CharField(unique=True,max_length=30)
-    id_code=models.CharField(unique=True,max_length=10)
-    squad=models.ForeignKey('Squad',related_name='workers',on_delete=models.DO_NOTHING)
+    location=models.CharField(blank=True,null=True,max_length=30)
+    squad=models.ForeignKey('Squad',related_name='ware_houses',on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -22,16 +23,15 @@ class Product(models.Model):
     amount=models.IntegerField()
     unit=models.CharField(default='個',max_length=5)
     photo=models.FileField()
+    warehouse=models.ForeignKey('Warehouse',related_name='products',on_delete=models.DO_NOTHING,null=True)
 
     def __str__(self):
         return self.name
 
-class Warehouse(models.Model):
-
+class Worker(models.Model):
     name=models.CharField(unique=True,max_length=30)
-    location=models.CharField(blank=True,null=True,max_length=30)
-    squad=models.ForeignKey('Squad',related_name='ware_houses',on_delete=models.CASCADE)
-    products=models.ManyToManyField('Product',related_name='ware_houses')
+    id_code=models.CharField(unique=True,max_length=10)
+    squad=models.ForeignKey('Squad',related_name='workers',on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name
