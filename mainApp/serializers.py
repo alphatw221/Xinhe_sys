@@ -7,6 +7,11 @@ class  ProductSerializer(serializers.ModelSerializer):
         model=Product
         fields='__all__'
 
+class  ProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Products
+        fields='__all__'
+
 class  WorkerSerializer(serializers.ModelSerializer):
     class Meta:
         model=Worker

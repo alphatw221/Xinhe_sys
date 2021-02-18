@@ -5,6 +5,7 @@ from django.contrib import admin
 from .models import *
 
 admin.site.register(Product)
+admin.site.register(Products)
 admin.site.register(Worker)
 admin.site.register(Squad)
 admin.site.register(Warehouse)
