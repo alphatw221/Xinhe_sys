@@ -30,7 +30,7 @@ def control_panel(request):
     except Token.DoesNotExist:
         return render(request,'login_page.html')
 
-    context={'products':Product.objects.all(),'machines':Machine.objects.all(),'transactions':Transaction.objects.all(),'restocks':Restock.objects.all()}
+    context={'products':Product.objects.all(),'squads':Squad.objects.all(),'Workers':Worker.objects.all(),'warehouses':Warehouse.objects.all()}
     return render(request,'control_panel.html',context)
 
 #--------------------------------------api----------------------------------------------------

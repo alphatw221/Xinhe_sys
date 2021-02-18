@@ -2,13 +2,13 @@ from django.db import models
 
 # Create your models here.
 class Squad(models.Model):
-    name=models.CharField(unique=True)
+    name=models.CharField(unique=True,max_length=30)
 
     def __str__(self):
         return self.name
 
 class Worker(models.Model):
-    name=models.CharField(unique=True)
+    name=models.CharField(unique=True,max_length=30)
     id_code=models.CharField(unique=True,max_length=10)
     squad=models.ForeignKey('Squad',related_name='workers',on_delete=models.DO_NOTHING)
 
@@ -17,10 +17,10 @@ class Worker(models.Model):
 
 class Product(models.Model):
 
-    name=models.CharField(unique=True)
-    code=models.CharField(blank=True,null=True,unique=True)
+    name=models.CharField(unique=True,max_length=30)
+    code=models.CharField(blank=True,null=True,unique=True,max_length=30)
     amount=models.IntegerField()
-    unit=models.CharField(default='個')
+    unit=models.CharField(default='個',max_length=5)
     photo=models.FileField()
 
     def __str__(self):
@@ -28,18 +28,18 @@ class Product(models.Model):
 
 class Warehouse(models.Model):
 
-    name=models.CharField(unique=True)
-    location=models.CharField(blank=True,null=True)
+    name=models.CharField(unique=True,max_length=30)
+    location=models.CharField(blank=True,null=True,max_length=30)
     squad=models.ForeignKey('Squad',related_name='ware_houses',on_delete=models.CASCADE)
-    products=models.ManyToManyField('Product',related_name='ware_houses',on_delete=models.DO_NOTHING)
-    
+    products=models.ManyToManyField('Product',related_name='ware_houses')
+
     def __str__(self):
         return self.name
 
 class GetProductSheet(models.Model):
 
-    code=models.CharField(unique=True)
-    products=models.ManyToManyField('Product',related_name='get_product_sheets',on_delete=models.DO_NOTHING)
+    code=models.CharField(unique=True,max_length=30)
+    products=models.ManyToManyField('Product',related_name='get_product_sheets')
     squad=models.ForeignKey('Squad',related_name='get_product_sheets',on_delete=models.DO_NOTHING)
     is_completed=models.BooleanField(default=False)
     is_blocked=models.BooleanField(default=False)
@@ -50,8 +50,8 @@ class GetProductSheet(models.Model):
 
 class BlockedProject(models.Model):
 
-    code=models.CharField(unique=True)
-    get_product_sheet=models.ForeignKey('GetProductSheet',on_delete=models.DO_NOTHING,primary=True)
+    code=models.CharField(unique=True,max_length=30)
+    get_product_sheet=models.ForeignKey('GetProductSheet',on_delete=models.DO_NOTHING)
     date=models.DateField()
 
     def __str__(self):
@@ -59,8 +59,8 @@ class BlockedProject(models.Model):
 
 class CompletedProject(models.Model):
 
-    code=models.CharField(unique=True)
-    get_product_sheet=models.ForeignKey('GetProductSheet',on_delete=models.DO_NOTHING,primary=True)
+    code=models.CharField(unique=True,max_length=30)
+    get_product_sheet=models.ForeignKey('GetProductSheet',on_delete=models.DO_NOTHING)
     date=models.DateField()
 
     def __str__(self):

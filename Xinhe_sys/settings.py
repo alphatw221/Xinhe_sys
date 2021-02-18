@@ -31,6 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
+    'rest_framework.authtoken',
+    'rest_framework',
     'mainApp',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -76,14 +79,15 @@ WSGI_APPLICATION = 'Xinhe_sys.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 使用mysql的設定
-        'NAME':'Xinhe',
-        'USER':'Xinhe',
-        'PASSWORD':'xinhexinhe',
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME':'Mysql',
+        'USER':'root',
+        'PASSWORD':'xinhe',
         'HOST':'localhost',
         'PORT':'3306',
     }
 }
+
 
 
 # Password validation
