@@ -1,36 +1,90 @@
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/25.0.0/classic/ckeditor.js"></script>
-    
-    
-    <script>
-        function logout(){
-            var token= $.cookie('token')
-            var csrf_token = '{{csrf_token}}'
+{% extends "layouts/default.html" %}
 
-            $.ajax({
-                headers: { "X-CSRFToken": csrf_token ,"Authorization":"Token "+token},
-                url:'/logout/',
-                type:'post',
-                success:function(response){
-                    window.alert(response.message)
-                    $.cookie('token',null,{path:'/'})
-                    window.location.replace("/login_page/");
-                },
-            });
-        }
-    </script>
-</head>
-<body>
-    <button onclick="product_page()">材料</button>
-    <button onclick="worker_page()">人員</button>
-    <button onclick="warehouse_page()">倉儲</button>
-    <button onclick="squad_page()">工作班</button>
-    <button onclick="blocked_project()">工阻</button>
-    <button onclick="completed_project()">完工</button>
-    <button onclick="logout()">登出</button>
-    
-</body>
+{% block page %}
+    <div id="squad_page" v-if="squad_page.show">
+        <button v-on:click="squad_page.create_form_show=!squad_page.create_form_show">新增工班</button>
+        <div v-if="squad_page.create_form_show">
+            <label for="name">名稱:</label><input type="text" name="name" v-model="squad_page.name"><br>
+            <button v-on:click="create_squad">送出</button>
+        </div>
+
+        
+        {% for squad in squads %}
+            <div>
+                {{squad.name}} 
+                <button v-on:click="squad_detail({{squad.id}})">人員</button> 
+                <button v-on:click="squad_update_show({{squad.id}})">修改</button> 
+                <button v-on:click="squad_delete({{squad.id}})">刪除</button>
+            </div>
+            <div id="squad_edit{{squad.id}}" style="display: none;">
+                <label for="name">名稱:</label><input id="squad_name{{squad.id}}" type="text" name="name" value="{{squad.name}}" ><br>
+                <button v-on:click="squad_update({{squad.id}})">送出</button>
+            </div>
+            <div id="squad_workers{{squad.id}}" style="display: none;">
+                {% for worker in squad.workers.all %}
+                <ul>
+                    <li>{{worker.name}} {{worker.id_code}}</li>
+                </ul>
+                {% endfor %}
+            </div>
+            
+        {% endfor %}
+    </div>
+
+
+
+    <div id="product_page" v-if="product_page.show">
+        <button v-on:click="product_page.create_form_show=!product_page.create_form_show">新增單料</button>
+        <div id="create_form" v-if="product_page.create_form_show">
+            <label for="name">名稱:</label><input type="text" name="name" v-model="product_page.name"><br>
+            <label for="code">代碼:</label><input type="text" name="code" v-model="product_page.code"><br>
+            <label for="unit">單位:</label><input type="text" name="unit" v-model="product_page.unit"><br>
+            <label for="photo">圖片:</label><input type="file" name="photo" @change="fileChange"><br>
+            <button v-on:click="create_product">送出</button>
+        </div>
+        <ul>
+            <li v-for="product in product_list" v-html="product.name+' '+product.code+' '+product.unit+' '+product.photo"></li>
+        </ul>
+    </div>
+
+
+
+    <div id="warehouse_page" v-if="warehouse_page.show">
+        <button v-on:click="warehouse_page.create_form_show=!warehouse_page.create_form_show">新增倉庫</button><br>
+        <div v-if="warehouse_page.create_form_show">
+            <label for="name">名稱:</label><input type="text" name="name" v-model="warehouse_page.name"><br>
+            <label for="location">地址:</label><input type="text" name="location" v-model="warehouse_page.location"><br>
+            <label for="squad">工作班:</label>
+            <select name="squad" v-model=warehouse_page.squad>
+                {% for squad in squads %}
+                <option value="{{squad.id}}">{{squad.name}}</option>
+                {% endfor %}
+            </select>
+        <button v-on:click="create_warehouse">送出</button>
+        </div>
+        
+        {% for warehouse in warehouses %}
+                <div>{{warehouse.name}} <span></span>{{warehouse.location}}<span></span>{{warehouse.squad.name}}</span>
+                    <button v-on:click="warehouse_detail_show({{warehouse.id}})">庫存</button> 
+                    <button v-on:click="warehouse_update_show({{warehouse.id}})">修改</button> 
+                    <button v-on:click="warehouse_delete({{warehouse.id}})">刪除</button>
+                </div>
+                <div id="warehouse_edit{{warehouse.id}}" style="display: none;">
+                    <label for="name">名稱:</label><input id="warehouse_name{{warehouse.id}}" type="text" name="name" value="{{warehouse.name}}" ><br>
+                    <label for="location">地址:</label><input id="warehouse_location{{warehouse.id}}" type="text" name="location" value="{{warehouse.location}}"><br>
+                    <label for="squad">工作班:</label>
+                    <select name="squad" id="warehouse_squad{{warehouse.id}}" >
+                        {% for squad in squads %}
+                        {% if squad.name == warehouse.squad.name %}
+                        <option value="{{squad.id}}" selected="selected">{{squad.name}}</option>
+                        {% else %}
+                        <option value="{{squad.id}}">{{squad.name}}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button v-on:click="warehouse_update({{warehouse.id}})">送出</button>
+                </div>
+                
+        {% endfor %}
+    </div>
+{% endblock page %}

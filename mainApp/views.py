@@ -16,6 +16,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import os 
+from django.conf import settings
 
 
 def login_page(request):
@@ -32,6 +35,16 @@ def control_panel(request):
 
     context={'products':Product.objects.all(),'squads':Squad.objects.all(),'Workers':Worker.objects.all(),'warehouses':Warehouse.objects.all()}
     return render(request,'control_panel.html',context)
+
+def squad_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={'products':Product.objects.all(),'squads':Squad.objects.all(),'Workers':Worker.objects.all(),'warehouses':Warehouse.objects.all()}
+    return render(request,'pages/squad.html')
 
 #--------------------------------------api----------------------------------------------------
 
@@ -78,6 +91,8 @@ class ProductList(APIView):
     def post(self,request):
         serializer=ProductSerializer(data=request.data)
 
+        print(request.data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             content={'s':1,'message':'新增成功','data':serializer.data}

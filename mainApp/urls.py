@@ -8,6 +8,8 @@ urlpatterns = [
     path('login_page/',login_page),
     path('control_panel/',control_panel),
 
+    path('squad_page/',squad_page),
+
     #api
     path('login/',Login.as_view()),
     path('logout/',Logout.as_view()),
@@ -30,7 +32,5 @@ urlpatterns = [
     path('completed_project_list/',CompletedProjectList.as_view()),
     path('completed_project_detail/<int:id>',CompletedProjectDetails.as_view()),
 
-    path('warehouse_list/',WarehouseList.as_view()),
-    path('warehouse_detail/<int:id>',WarehouseDetails.as_view()),
     
 ]

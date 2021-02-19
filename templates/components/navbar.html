@@ -1,0 +1,9 @@
+{% extends "layouts/default.html" %}
+
+{% block navbar %}
+<div class="navbar" id ="navbar">
+    <button v-on:click="show_squad_page">工班</button>
+    <button v-on:click="show_product_page">料品</button>
+    <button v-on:click="show_warehouse_page">倉庫</button>
+</div>
+{% endblock navbar %}
