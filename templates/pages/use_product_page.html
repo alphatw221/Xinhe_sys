@@ -1,0 +1,42 @@
+{% extends "layouts/default.html" %}
+
+{% block page %}
+<h1>新增完工單</h1>
+<div  id="use_product_sheet">
+    
+    
+    
+    <label for="squad">工班:</label>
+    <select name="squad" id="" v-model="use_product_sheet_data.squad" v-on:change="update_warehouse_worksheet">
+        {% for squad in squads %}
+        <option value="{{squad.id}}">{{squad.name}}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="warehouse" >倉庫:</label>
+    <select name="warehouse" id="warehouse" v-model="use_product_sheet_data.warehouse" >
+    </select><br>
+
+    <label for="serial_number">聯單號:</label><input type="text" name="serial_number" v-on:keyup="search_worksheets" v-model="serial_number"><br>
+
+    <span v-html="message"></span><br>
+    <label for="date">日期:</label><input type="date" name="date" v-model="use_product_sheet_data.date"><br>
+
+    <label for="status" >狀態:</label>
+    <select name="status" v-model="use_product_sheet_data.status" >
+        {% for status in statuss %}
+        <option value="{{status.id}}">{{status.name}}</option>
+        {% endfor %}
+    </select><br>
+
+
+    <label for="discription">附註:</label><textarea name="discription" cols="30" rows="10" v-model="use_product_sheet_data.discription"></textarea><br>
+
+    <button v-on:click="new_products">新增用料</button>
+    <div id="productss_div">
+       
+    </div>
+        
+    <button v-on:click="submit">送出</button>
+</div>
+{% endblock page %}

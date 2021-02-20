@@ -4,17 +4,13 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>Xinhe_SYS</title>
     </head>
     <body >
 
-        <div id="control_panel">
+        <div >
             
-            <div class="navbar" id ="navbar">
-                <button v-on:click="show_squad_page">工班</button>
-                <button v-on:click="show_product_page">單料</button>
-                <button v-on:click="show_warehouse_page">倉庫</button>
-            </div>
+            
 
             <div>
                 {% block page %}
@@ -28,7 +24,10 @@
         <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script> -->
         <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script src="/static/js/control_panel.js"></script>
+        <script src="/static/js/worksheet.js"></script>
+        <script src="/static/js/get_product_page.js"></script>
+        <script src="/static/js/use_product_page.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
     </body>
 
 

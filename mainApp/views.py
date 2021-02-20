@@ -36,16 +36,48 @@ def control_panel(request):
     context={'products':Product.objects.all(),'squads':Squad.objects.all(),'Workers':Worker.objects.all(),'warehouses':Warehouse.objects.all()}
     return render(request,'control_panel.html',context)
 
-def squad_page(request):
+
+def worksheet_page(request):
     key=request.COOKIES.get('token')
     try:
         token=Token.objects.get(key=key)
     except Token.DoesNotExist:
         return render(request,'login_page.html')
 
-    context={'products':Product.objects.all(),'squads':Squad.objects.all(),'Workers':Worker.objects.all(),'warehouses':Warehouse.objects.all()}
-    return render(request,'pages/squad.html')
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),
+    'Workers':Worker.objects.all(),
+    'warehouses':Warehouse.objects.all(),
+    'worksheets':WorkSheet.objects.all(),
+    'type1s':Type1.objects.all(),
+    'type2s':Type2.objects.all(),
+    'statuss':Status.objects.all(),
+    'regions':Region.objects.all(),
+    'projects':Project.objects.all()}
+    return render(request,'pages/worksheet.html',context)
 
+def get_product_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),}
+    return render(request,'pages/get_product_page.html',context)
+
+def use_product_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),
+    'statuss':Status.objects.all(),}
+    return render(request,'pages/use_product_page.html',context)
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -76,7 +108,340 @@ class Logout(APIView):
         token.delete()
         content={'s':1,'message':'登出成功'}
         return Response(content)
-        
+
+class WorkSheetList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        worksheets=WorkSheet.objects.all()
+        serializer=ProductSerializer(worksheets,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer=WorkSheetSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class WorkSheetDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            worksheets=WorkSheet.objects.get(id=id)
+            return worksheets
+        except WorkSheet.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        worksheets=self.get_object(id)
+        serializer=WorkSheetSerializer(worksheets)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        worksheets=self.get_object(id)
+        serializer=WorkSheetSerializer(worksheets,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        worksheets=self.get_object(id)
+        worksheets.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+
+class WorkSheetProductsList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_product_id(self,code):
+        try:
+            product=Product.objects.get(code=code)
+            return product.id
+        except Product.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request):
+        worksheet_productss=WorkSheetProducts.objects.all()
+        serializer=WorkSheetProductsSerializer(worksheet_productss,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        # data={'product':self.get_product_id(request.data['code']),
+        # 'amount':request.data['amount'],
+        # 'worksheet':request.data['worksheet']}
+        # print(data)
+        serializer=WorkSheetProductsSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class WorkSheetProductsDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            worksheet_productss=WorkSheet.objects.get(id=id)
+            return worksheets
+        except WorkSheet.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        worksheet_productss=self.get_object(id)
+        serializer=WorkSheetProductsSerializer(worksheet_productss)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        worksheet_productss=self.get_object(id)
+        serializer=WorkSheetProductsSerializer(worksheet_productss,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        worksheet_productss=self.get_object(id)
+        worksheet_productss.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+class GetProductSheetList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        get_product_sheets=GetProductSheet.objects.all()
+        serializer=GetProductSheetSerializer(get_product_sheets,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer=GetProductSheetSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class GetProductSheetDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            get_product_sheet=GetProductSheet.objects.get(id=id)
+            return get_product_sheet
+        except GetProductSheet.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        get_product_sheet=self.get_object(id)
+        serializer=GetProductSheetSerializer(get_product_sheet)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        get_product_sheet=self.get_object(id)
+        serializer=GetProductSheetSerializer(get_product_sheet,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        get_product_sheet=self.get_object(id)
+        get_product_sheet.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+
+class GetProductSheetProductsList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        get_product_sheet_productss=GetProductSheetProducts.objects.all()
+        serializer=GetProductSheetProductsSerializer(get_product_sheet_productss,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer=GetProductSheetProductsSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class GetProductSheetProductsDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            get_product_sheet_products=GetProductSheetProducts.objects.get(id=id)
+            return get_product_sheet_products
+        except GetProductSheetProducts.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        get_product_sheet_products=self.get_object(id)
+        serializer=GetProductSheetProductsSerializer(get_product_sheet_products)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        get_product_sheet_products=self.get_object(id)
+        serializer=GetProductSheetProductsSerializer(get_product_sheet_products,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        get_product_sheet_products=self.get_object(id)
+        get_product_sheet_products.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+
+
+#---------------------------------------------------------------------------------------------------
+class UseProductSheetList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        use_product_sheets=UseProductSheet.objects.all()
+        serializer=UseProductSheetSerializer(use_product_sheets,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer=UseProductSheetSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class UseProductSheetDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            use_product_sheet=UseProductSheet.objects.get(id=id)
+            return use_product_sheet
+        except UseProductSheet.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        use_product_sheet=self.get_object(id)
+        serializer=UseProductSheetSerializer(get_product_sheet)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        use_product_sheet=self.get_object(id)
+        serializer=UseProductSheetSerializer(use_product_sheet,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        use_product_sheet=self.get_object(id)
+        use_product_sheet.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+
+class UseProductSheetProductsList(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        use_product_sheet_productss=UseProductSheetProducts.objects.all()
+        serializer=UseProductSheetProductsSerializer(use_product_sheet_productss,many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer=UseProductSheetProductsSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'新增成功','data':serializer.data}
+            return Response(content)
+        print(serializer.errors)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+class UseProductSheetProductsDetails(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get_object(self,id):
+        try:
+            use_product_sheet_products=UseProductSheetProducts.objects.get(id=id)
+            return use_product_sheet_products
+        except UseProductSheetProducts.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+    def get(self,request,id):
+        use_product_sheet_products=self.get_object(id)
+        serializer=UseProductSheetProductsSerializer(use_product_sheet_products)
+        return Response(serializer.data)
+
+    def put(self,request,id):
+        use_product_sheet_products=self.get_object(id)
+        serializer=UseProductSheetProductsSerializer(use_product_sheet_products,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            content={'s':1,'message':'更新成功','data':serializer.data}
+            return Response(content)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self,request,id):
+        use_product_sheet_products=self.get_object(id)
+        use_product_sheet_products.delete()
+        content={'s':1,'message':'刪除成功'}
+        return Response(content)
+
+#--------------------------
+
+
+
 
 class ProductList(APIView):
 
@@ -132,57 +497,6 @@ class ProductDetails(APIView):
         content={'s':1,'message':'刪除成功'}
         return Response(content)
 
-class ProductsList(APIView):
-
-    authentication_classes=[TokenAuthentication]
-    premission_classes=[IsAuthenticated]
-
-    def get(self,request):
-        productss=Products.objects.all()
-        serializer=ProductsSerializer(productss,many=True)
-        return Response(serializer.data)
-
-    def post(self,request):
-        serializer=ProductsSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            # return Response(serializer.data,status=status.HTTP_201_CREATED)
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-class ProductsDetails(APIView):
-
-    authentication_classes=[TokenAuthentication]
-    premission_classes=[IsAuthenticated]
-
-    def get_object(self,id):
-        try:
-            products=Products.objects.get(id=id)
-            return products
-        except Products.DoesNotExist:
-            return Response(status=HTTP_404_NOT_FOUND)
-
-    def get(self,request,id):
-        products=self.get_object(id)
-        serializer=ProductsSerializer(product)
-        return Response(serializer.data)
-
-    def put(self,request,id):
-        products=self.get_object(id)
-        serializer=ProductsSerializer(products,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self,request,id):
-        products=self.get_object(id)
-        products.delete()
-        content={'s':1,'message':'刪除成功'}
-        return Response(content)
     
 class SquadList(APIView):
 
@@ -338,104 +652,25 @@ class WarehouseDetails(APIView):
         content={'s':1,'message':'刪除成功'}
         return Response(content)
 
-class CompletedProjectList(APIView):
+
+class GetSquadWarehouses(APIView):
 
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
-
-    def get(self,request):
-        completedProject=CompletedProject.objects.all()
-        serializer=CompleteProjectSerializer(completedProject,many=True)
-        return Response(serializer.data)
-
-    def post(self,request):
-        serializer=CompleteProjectSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-class CompletedProjectDetails(APIView):
-
-    authentication_classes=[TokenAuthentication]
-    premission_classes=[IsAuthenticated]
-
-    def get_object(self,id):
-        try:
-            completedProject=CompletedProject.objects.get(id=id)
-            return warehouse
-        except CompletedProject.DoesNotExist:
-            return Response(status=HTTP_404_NOT_FOUND)
 
     def get(self,request,id):
-        warehocompletedProjectuse=self.get_object(id)
-        serializer=CompleteProjectSerializer(completedProject)
+        squad=Squad.objects.get(id=id)
+        warehouses=squad.warehouses.all()
+        serializer=WarehouseSerializer(warehouses,many=True)
         return Response(serializer.data)
 
-    def put(self,request,id):
-        completedProject=self.get_object(id)
-        serializer=CompleteProjectSerializer(completedProject,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self,request,id):
-        completedProject=self.get_object(id)
-        completedProject.delete()
-        content={'s':1,'message':'刪除成功'}
-        return Response(content)
-
-class BlockedProjectList(APIView):
+class GetSquadWorkSheet(APIView):
 
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
-
-    def get(self,request):
-        blockedProject=BlockedProject.objects.all()
-        serializer=BlockedProjectSerializer(blockedProject,many=True)
-        return Response(serializer.data)
-
-    def post(self,request):
-        serializer=BlockedProjectSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-class CompletedProjectDetails(APIView):
-
-    authentication_classes=[TokenAuthentication]
-    premission_classes=[IsAuthenticated]
-
-    def get_object(self,id):
-        try:
-            blockedProject=BlockedProject.objects.get(id=id)
-            return blockedProject
-        except BlockedProject.DoesNotExist:
-            return Response(status=HTTP_404_NOT_FOUND)
 
     def get(self,request,id):
-        blockedProject=self.get_object(id)
-        serializer=BlockedProjectSerializer(blockedProject)
+        squad=Squad.objects.get(id=id)
+        work_sheets=squad.work_sheets.all()
+        serializer=WorkSheetSerializer(work_sheets,many=True)
         return Response(serializer.data)
-
-    def put(self,request,id):
-        blockedProject=self.get_object(id)
-        serializer=BlockedProjectSerializer(blockedProject,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
-            return Response(content)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self,request,id):
-        blockedProject=self.get_object(id)
-        blockedProject.delete()
-        content={'s':1,'message':'刪除成功'}
-        return Response(content)

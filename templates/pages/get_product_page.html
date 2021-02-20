@@ -1,0 +1,31 @@
+{% extends "layouts/default.html" %}
+
+{% block page %}
+<h1>新增領貨單</h1>
+<div  id="get_product_sheet">
+    
+    <label for="serial_number">單號:</label><input type="text" name="serial_number" v-model="get_product_sheet_data.serial_number"><br>
+
+    <label for="squad">工班:</label>
+    <select name="squad" id="" v-model="get_product_sheet_data.squad" v-on:change="update_warehouse">
+        {% for squad in squads %}
+        <option value="{{squad.id}}">{{squad.name}}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="warehouse" >倉庫:</label>
+    <select name="warehouse" id="warehouse" v-model="get_product_sheet_data.warehouse" >
+    </select><br>
+
+    <label for="date">日期:</label><input type="date" name="date" v-model="get_product_sheet_data.date"><br>
+
+
+    <button v-on:click="new_products">新增批料</button>
+    <div id="productss_div">
+       
+    </div>
+        
+    <button v-on:click="export_pdf">輸出pdf</button>
+    <button v-on:click="submit">送出</button>
+</div>
+{% endblock page %}

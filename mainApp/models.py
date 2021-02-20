@@ -20,7 +20,7 @@ class Warehouse(models.Model):
 
     name=models.CharField(unique=True,max_length=30)
     location=models.CharField(blank=True,null=True,max_length=30)
-    squad=models.ForeignKey('Squad',related_name='ware_houses',on_delete=models.CASCADE)
+    squad=models.ForeignKey('Squad',related_name='warehouses',on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.name)
@@ -73,12 +73,15 @@ class WorkSheet(models.Model):
     type2=models.ForeignKey('Type2',related_name='work_sheets',on_delete=models.DO_NOTHING)
     region=models.ForeignKey('Region',related_name='work_sheets',on_delete=models.DO_NOTHING)
     project=models.ForeignKey('Project',related_name='work_sheets',on_delete=models.DO_NOTHING)
+    address=models.CharField(max_length=40,blank=True,null=True)
+    batch=models.CharField(max_length=20,blank=True,null=True)
 
     def __str__(self):
         return str(self.serial_number)
 
 class GetProductSheet(models.Model):
 
+    serial_number=models.CharField(unique=True,max_length=30)
     squad=models.ForeignKey('Squad',related_name='get_product_sheets',on_delete=models.DO_NOTHING)
     date=models.DateField()
 
@@ -87,8 +90,11 @@ class GetProductSheet(models.Model):
 
 class UseProductSheet(models.Model):
 
+    worksheet=models.ForeignKey('WorkSheet',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
     squad=models.ForeignKey('Squad',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
     date=models.DateField()
+    discription=models.TextField(blank=True,null=True)
+    status=models.ForeignKey('Status',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return str(self.id)
@@ -98,8 +104,7 @@ class WorkSheetProducts(models.Model):
 
     product=models.ForeignKey('Product',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
     amount=models.IntegerField()
-    work_sheet=models.ForeignKey('WorkSheet',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
-    warehouse=models.ForeignKey('Warehouse',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
+    worksheet=models.ForeignKey('WorkSheet',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return str(self.id)
