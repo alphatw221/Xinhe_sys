@@ -1,42 +1,38 @@
 {% extends "layouts/default.html" %}
 
 {% block page %}
+<div class="container">
 <h1>新增完工單</h1>
 <div  id="use_product_sheet">
     
     
-    
-    <label for="squad">工班:</label>
-    <select name="squad" id="" v-model="use_product_sheet_data.squad" v-on:change="update_warehouse_worksheet">
-        {% for squad in squads %}
-        <option value="{{squad.id}}">{{squad.name}}</option>
-        {% endfor %}
-    </select><br>
+    <table class="table">
+        <tr><td><label for="squad">工班:</label></td><td> <select name="squad" id="" v-model="use_product_sheet_data.squad" v-on:change="update_warehouse_worksheet">
+            {% for squad in squads %}
+            <option value="{{squad.id}}">{{squad.name}}</option>
+            {% endfor %}
+        </select></td></tr>
 
-    <label for="warehouse" >倉庫:</label>
-    <select name="warehouse" id="warehouse" v-model="use_product_sheet_data.warehouse" >
-    </select><br>
+        <tr><td><label for="warehouse" >倉庫:</label></td><td><select name="warehouse" id="warehouse" v-model="use_product_sheet_data.warehouse" >
+        </select></td></tr>
 
-    <label for="serial_number">聯單號:</label><input type="text" name="serial_number" v-on:keyup="search_worksheets" v-model="serial_number"><br>
+        <tr><td><label for="serial_number">聯單號:</label></td><td><input type="text" name="serial_number" v-on:keyup="search_worksheets" v-model="serial_number"></td></tr>
 
-    <span v-html="message"></span><br>
-    <label for="date">日期:</label><input type="date" name="date" v-model="use_product_sheet_data.date"><br>
+        <tr><td colspan="2"><span v-html="message"></span></td></tr>
+        <tr><td> <label for="date">日期:</label></td><td> <input type="date" name="date" v-model="use_product_sheet_data.date"></td></tr>
 
-    <label for="status" >狀態:</label>
-    <select name="status" v-model="use_product_sheet_data.status" >
-        {% for status in statuss %}
-        <option value="{{status.id}}">{{status.name}}</option>
-        {% endfor %}
-    </select><br>
+        <tr><td><label for="status" >狀態:</label></td><td><select name="status" v-model="use_product_sheet_data.status" >
+            {% for status in statuss %}
+            <option value="{{status.id}}">{{status.name}}</option>
+            {% endfor %}
+        </select></td></tr>
 
+        <tr><td><label for="discription">附註:</label></td><td><textarea name="discription" cols="30" rows="10" v-model="use_product_sheet_data.discription"></textarea></td></tr>
+        <tr><td colspan="2"><button class="btn btn-secondary" v-on:click="new_products">新增用料</button></td></tr>
+        <tr><td colspan="2"><div id="productss_div"></div></td></tr>
+        </table>
+        <button class="btn btn-success" v-on:click="submit">送出</button>
 
-    <label for="discription">附註:</label><textarea name="discription" cols="30" rows="10" v-model="use_product_sheet_data.discription"></textarea><br>
-
-    <button v-on:click="new_products">新增用料</button>
-    <div id="productss_div">
-       
-    </div>
-        
-    <button v-on:click="submit">送出</button>
+</div>
 </div>
 {% endblock page %}

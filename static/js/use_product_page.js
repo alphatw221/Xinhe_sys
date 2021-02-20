@@ -49,6 +49,7 @@ var worksheet = new Vue({
             label2=document.createElement('label')
             label3=document.createElement('label')
             label4=document.createElement('label')
+            btn.className = 'btn btn-danger';
             btn.innerHTML='取消';
             label1.innerHTML='料號:';
             label2.innerHTML='數量:';

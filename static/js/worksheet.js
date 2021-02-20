@@ -47,7 +47,8 @@ var worksheet = new Vue({
             label1=document.createElement('label')
             label2=document.createElement('label')
             label3=document.createElement('label')
-            label4=document.createElement('label')
+            label4=document.createElement('label');
+            btn.className='btn btn-danger';
             btn.innerHTML='取消';
             label1.innerHTML='料號:';
             label2.innerHTML='數量:';
@@ -79,13 +80,19 @@ var worksheet = new Vue({
             label2.id='label2'+n;
             label3.id='label3'+n;
             label4.id='label4'+n;
+
             div.appendChild(label1);
             div.appendChild(ele1);
+
             div.appendChild(label3);
+
             div.appendChild(label4);
+
             div.appendChild(label2);
             div.appendChild(ele2);
+
             div.appendChild(btn);
+            
             div.appendChild(br);
             div.appendChild(ele3);
             this.worksheet_productss.n++;
