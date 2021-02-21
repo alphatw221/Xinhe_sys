@@ -78,6 +78,25 @@ def use_product_page(request):
     'squads':Squad.objects.all(),
     'statuss':Status.objects.all(),}
     return render(request,'pages/use_product_page.html',context)
+
+def dashboard_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),
+    'Workers':Worker.objects.all(),
+    'warehouses':Warehouse.objects.all(),
+    'worksheets':WorkSheet.objects.all(),
+    'type1s':Type1.objects.all(),
+    'type2s':Type2.objects.all(),
+    'statuss':Status.objects.all(),
+    'regions':Region.objects.all(),
+    'projects':Project.objects.all()}
+    return render(request,'pages/dashboard_page.html',context)
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -116,7 +135,7 @@ class WorkSheetList(APIView):
 
     def get(self,request):
         worksheets=WorkSheet.objects.all()
-        serializer=ProductSerializer(worksheets,many=True)
+        serializer=WorkSheetSerializer(worksheets,many=True)
         return Response(serializer.data)
 
     def post(self,request):
@@ -674,3 +693,53 @@ class GetSquadWorkSheet(APIView):
         work_sheets=squad.work_sheets.all()
         serializer=WorkSheetSerializer(work_sheets,many=True)
         return Response(serializer.data)
+
+class GetAllDict(APIView):
+
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        squads=Squad.objects.all()
+        squad_dict={}
+        i=0
+        for i in range(len(squads)):
+            squad_dict[squads[i].id]=squads[i].name
+
+        statuss=Status.objects.all()
+        status_dict={}
+        i=0
+        for i in range(len(statuss)):
+            status_dict[statuss[i].id]=statuss[i].name
+
+        type1s=Type1.objects.all()
+        type1_dict={}
+        i=0
+        for i in range(len(type1s)):
+            type1_dict[type1s[i].id]=type1s[i].name
+
+        type2s=Type2.objects.all()
+        type2_dict={}
+        i=0
+        for i in range(len(type2s)):
+            type2_dict[type2s[i].id]=type2s[i].name
+
+        regions=Region.objects.all()
+        region_dict={}
+        i=0
+        for i in range(len(regions)):
+            region_dict[regions[i].id]=regions[i].name
+
+        
+        projects=Project.objects.all()
+        project_dict={}
+        i=0
+        for i in range(len(projects)):
+            project_dict[projects[i].id]=projects[i].name
+
+        data={
+            'squad_dict':squad_dict,'status_dict':status_dict,
+            'type1_dict':type1_dict,'type2_dict':type2_dict,
+            'region_dict':region_dict,'project_dict':project_dict
+        }
+        return Response(data)

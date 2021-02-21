@@ -10,6 +10,7 @@ urlpatterns = [
     path('worksheet_page/',worksheet_page),
     path('get_product_sheet_page/',get_product_page),
     path('use_product_sheet_page/',use_product_page),
+    path('dashboard_page/',dashboard_page),
 
     #api
     path('login/',Login.as_view()),
@@ -50,4 +51,7 @@ urlpatterns = [
 
     #查找工班的工作單
     path('get_squad_worksheet/<int:id>',GetSquadWorkSheet.as_view()),
+
+    #取得table的id字典
+    path('get_all_dict/',GetAllDict.as_view()),
 ]

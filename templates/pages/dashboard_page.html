@@ -1,0 +1,83 @@
+{% extends "layouts/default.html" %}
+
+{% block page %}
+<div class="container">
+<h1>工作單查詢</h1>
+    <div  id="dashboard">
+    
+    <div name="filter_bar">
+        <label for="squad">工班:</label>
+        <select name="squad" v-model="squad_select">
+            {% for squad in squads %}
+            <option value="{{squad.id}}">{{squad.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="status">狀態:</label>
+        <select name="status" v-model="status_select">
+            {% for status in statuss %}
+            <option value="{{status.id}}">{{status.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="type1">類別1:</label>
+        <select name="type1" v-model="type1_select">
+            {% for type1 in type1s %}
+            <option value="{{type1.id}}">{{type1.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+        
+    <div v-for="worksheet in worksheets" v-if="!isFetching">
+        <table>
+            <tr>
+                <td>
+                    <span>聯單號:</span>
+                    <span v-html="worksheet.serial_number"></span>
+                </td>
+                <td>
+                    <span>工班:</span>
+                    <span v-html="dict.squad_dict[worksheet.squad]"></span>
+                </td>
+                <td>
+                    <span>狀態:</span>
+                    <span v-html="dict.status_dict[worksheet.status]"></span>
+                </td>
+                <td>
+                    <span>類別1:</span>
+                    <span v-html="dict.type1_dict[worksheet.type1]"></span>
+                </td>
+                <td>
+                    <span>類別2:</span>
+                    <span v-html="dict.type2_dict[worksheet.type2]"></span>
+                </td>
+                <td>
+                    <span>區號:</span>
+                    <span v-html="dict.region_dict[worksheet.region]"></span>
+                </td>
+                <td>
+                    <span>工程:</span>
+                    <span v-html="dict.project_dict[worksheet.project]"></span>
+                </td>
+                <td>
+                    <span>地址:</span>
+                    <span v-html="worksheet.address"></span>
+                </td>
+                <td>
+                    <span>批次:</span>
+                    <span v-html="worksheet.batch"></span>
+                </td>
+                <td>
+                    <span>日期:</span>
+                    <span v-html="worksheet.date"></span>
+                </td>
+            </tr>
+        </table>
+        
+    </div>
+            
+        
+       
+
+
+    </div>
+</div>
+{% endblock page %}
