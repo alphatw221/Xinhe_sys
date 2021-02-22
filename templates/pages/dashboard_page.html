@@ -6,22 +6,47 @@
     <div  id="dashboard">
     
     <div name="filter_bar">
+        <span>篩選條件:</span><br>
         <label for="squad">工班:</label>
         <select name="squad" v-model="squad_select">
+            <option value="0" >全部</option>
             {% for squad in squads %}
             <option value="{{squad.id}}">{{squad.name}}</option>
             {% endfor %}
         </select>
         <label for="status">狀態:</label>
         <select name="status" v-model="status_select">
+            <option value="0" >全部</option>
             {% for status in statuss %}
             <option value="{{status.id}}">{{status.name}}</option>
             {% endfor %}
         </select>
         <label for="type1">類別1:</label>
         <select name="type1" v-model="type1_select">
+            <option value="0" >全部</option>
             {% for type1 in type1s %}
             <option value="{{type1.id}}">{{type1.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="type2">類別2:</label>
+        <select name="type2" v-model="type2_select">
+            <option value="0" >全部</option>
+            {% for type2 in type2s %}
+            <option value="{{type2.id}}">{{type2.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="region">區域:</label>
+        <select name="region" v-model="region_select">
+            <option value="0" >全部</option>
+            {% for region in regions %}
+            <option value="{{region.id}}">{{region.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="project">工程:</label>
+        <select name="project" v-model="project_select">
+            <option value="0" >全部</option>
+            {% for project in projects %}
+            <option value="{{project.id}}">{{project.name}}</option>
             {% endfor %}
         </select>
     </div>
@@ -69,6 +94,12 @@
                     <span>日期:</span>
                     <span v-html="worksheet.date"></span>
                 </td>
+                <td>
+                    <button v-on:click="modify(worksheet.id)">修改</button>
+                </td>
+                <td>
+                    <button v-on:click="delete(worksheet.id)">刪除</button>
+                </td>
             </tr>
         </table>
         
@@ -80,4 +111,7 @@
 
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="/static/js/dashboard_page.js"></script>
 {% endblock page %}

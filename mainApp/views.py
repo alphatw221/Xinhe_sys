@@ -97,6 +97,27 @@ def dashboard_page(request):
     'regions':Region.objects.all(),
     'projects':Project.objects.all()}
     return render(request,'pages/dashboard_page.html',context)
+
+def update_worksheet_page(request,id):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    
+    worksheet=WorkSheet.objects.get(id=id)
+
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),
+    'worksheet':worksheet,
+    'type1s':Type1.objects.all(),
+    'type2s':Type2.objects.all(),
+    'statuss':Status.objects.all(),
+    'regions':Region.objects.all(),
+    'projects':Project.objects.all()}
+    return render(request,'pages/update_worksheet_page.html',context)
+
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -743,3 +764,13 @@ class GetAllDict(APIView):
             'region_dict':region_dict,'project_dict':project_dict
         }
         return Response(data)
+
+class GetWorksheetProductss(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request,id):
+        worksheet=WorkSheet.objects.get(id=id)
+        work_sheet_productss=worksheet.work_sheet_productss.all()
+        serializer=WorkSheetProductsSerializer(work_sheet_productss,many=True)
+        return Response(serializer.data)

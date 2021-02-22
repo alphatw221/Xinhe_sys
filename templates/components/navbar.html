@@ -2,8 +2,9 @@
 
 {% block navbar %}
 <div class="navbar" id ="navbar">
-    <button v-on:click="show_squad_page">工班</button>
-    <button v-on:click="show_product_page">料品</button>
-    <button v-on:click="show_warehouse_page">倉庫</button>
+    <a href="/worksheet_page/">新增工作聯單</a>
+    <a href="/get_product_sheet_page/">新增領料單</a>
+    <a href="/use_product_sheet_page/">新增完工用料單</a>
+    <a href="/dashboard_page/">檢視工作聯單</a>
 </div>
 {% endblock navbar %}

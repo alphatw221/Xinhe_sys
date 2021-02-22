@@ -8,27 +8,21 @@
         <title>Xinhe_SYS</title>
     </head>
     <body >
+        
+        <div class="navbar" id ="navbar">
+            <a href="/worksheet_page/">新增工作聯單</a>
+            <a href="/get_product_sheet_page/">新增領料單</a>
+            <a href="/use_product_sheet_page/">新增完工用料單</a>
+            <a href="/dashboard_page/">檢視工作聯單</a>
+        </div>
 
-        <div >
-            
-            
-
-            <div>
                 {% block page %}
                 
                 {% endblock page %}
-            </div>
-        </div>
-
+            
         
-
         <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script> -->
-        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script src="/static/js/worksheet.js"></script>
-        <script src="/static/js/get_product_page.js"></script>
-        <script src="/static/js/use_product_page.js"></script>
-        <script src="/static/js/dashboard_page.js"></script>
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
     </body>
 

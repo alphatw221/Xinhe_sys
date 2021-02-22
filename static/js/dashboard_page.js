@@ -5,10 +5,12 @@ var worksheet = new Vue({
         worksheets:[],
         dict:{},
         n:1,
-        squad_select:null,
-        status_select:null,
-        type1_select:null,
-      
+        squad_select:0,
+        status_select:0,
+        type1_select:0,
+        type2_select:0,
+        region_select:0,
+        project_select:0,
     },
     created(){
         this.isFetching=true
@@ -26,6 +28,18 @@ var worksheet = new Vue({
         
     },
     methods:{
-        
+        modify(id){
+            window.open('/update_worksheet_page/'+id)
+        },
+        delete(id){
+            result=window.confirm('確定刪除?')
+            if( result ){
+                axios.delete('worksheet_detail/'+id)
+                .then(res => {
+                    window.alert('刪除成功')
+                    location.reload()
+                }) .catch(err => { console.error(err);  })
+            }
+        }
     }
 })

@@ -11,7 +11,7 @@ urlpatterns = [
     path('get_product_sheet_page/',get_product_page),
     path('use_product_sheet_page/',use_product_page),
     path('dashboard_page/',dashboard_page),
-
+    path('update_worksheet_page/<int:id>',update_worksheet_page),
     #api
     path('login/',Login.as_view()),
     path('logout/',Logout.as_view()),
@@ -54,4 +54,7 @@ urlpatterns = [
 
     #取得table的id字典
     path('get_all_dict/',GetAllDict.as_view()),
+
+    #取得工作單的預估廖
+    path('get_worksheet_productss/<int:id>',GetWorksheetProductss.as_view()),
 ]
