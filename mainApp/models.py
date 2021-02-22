@@ -90,7 +90,7 @@ class GetProductSheet(models.Model):
 
 class UseProductSheet(models.Model):
 
-    worksheet=models.ForeignKey('WorkSheet',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
+    worksheet=models.ForeignKey('WorkSheet',related_name='use_product_sheets',on_delete=models.CASCADE)
     squad=models.ForeignKey('Squad',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
     date=models.DateField()
     discription=models.TextField(blank=True,null=True)
@@ -104,7 +104,7 @@ class WorkSheetProducts(models.Model):
 
     product=models.ForeignKey('Product',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
     amount=models.IntegerField()
-    worksheet=models.ForeignKey('WorkSheet',related_name='work_sheet_productss',on_delete=models.DO_NOTHING)
+    worksheet=models.ForeignKey('WorkSheet',related_name='work_sheet_productss',on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.id)

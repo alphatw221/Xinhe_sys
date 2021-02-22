@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -20,6 +20,23 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import os 
 from django.conf import settings
 
+class TwentyPagenation(PageNumberPagination):
+        page_size = 20
+        page_size_query_param = 'size'  
+        page_query_param = 'page'  
+        max_page_size = None  
+
+class FiftyPagenation(PageNumberPagination):
+        page_size = 50
+        page_size_query_param = 'size'  
+        page_query_param = 'page'  
+        max_page_size = None  
+
+class HundredPagenation(PageNumberPagination):
+        page_size = 100
+        page_size_query_param = 'size'  
+        page_query_param = 'page'  
+        max_page_size = None  
 
 def login_page(request):
     
@@ -154,20 +171,33 @@ class WorkSheetList(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
 
+    
+
     def get(self,request):
-        worksheets=WorkSheet.objects.all()
-        serializer=WorkSheetSerializer(worksheets,many=True)
+        worksheets=WorkSheet.objects.all().order_by('date')
+        twentyPagenation=TwentyPagenation()
+        page_worksheets=twentyPagenation.paginate_queryset(queryset=worksheets,request=request,view=self)
+        serializer=WorkSheetSerializer(page_worksheets,many=True)
         return Response(serializer.data)
 
     def post(self,request):
-        serializer=WorkSheetSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        print(serializer.errors)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer1=WorkSheetSerializer(data=request.data['worksheet'])
+        productss=request.data['worksheet_productss']
+        
+        if serializer1.is_valid() :
+            serializer1.save()
+            print(serializer1.data)
+            for products in productss:
+                products['worksheet']=serializer1.data['id']
+            serializer2=WorkSheetProductsSerializer(data=productss,many=True)
+            if serializer2.is_valid():
+                serializer2.save()
+                content={'s':1,'message':'新增成功','data':{'worksheet':serializer1.data,'worksheet_productss':serializer2.data}}
+                return Response(content)
+        
+        print(serializer1.errors)
+        WorkSheet.objects.get(id=serializer1.data['id']).delete()
+        return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class WorkSheetDetails(APIView):
 
@@ -176,23 +206,30 @@ class WorkSheetDetails(APIView):
 
     def get_object(self,id):
         try:
-            worksheets=WorkSheet.objects.get(id=id)
-            return worksheets
+            worksheet=WorkSheet.objects.get(id=id)
+            return worksheet
         except WorkSheet.DoesNotExist:
             return Response(status=HTTP_404_NOT_FOUND)
 
     def get(self,request,id):
-        worksheets=self.get_object(id)
-        serializer=WorkSheetSerializer(worksheets)
+        worksheet=self.get_object(id)
+        serializer=WorkSheetSerializer(worksheet)
         return Response(serializer.data)
 
     def put(self,request,id):
-        worksheets=self.get_object(id)
-        serializer=WorkSheetSerializer(worksheets,data=request.data)
-        if serializer.is_valid():
+        worksheet=self.get_object(id)
+        serializer=WorkSheetSerializer(worksheet,data=request.data['worksheet'])
+        serializer2=WorkSheetProductsSerializer(data=request.data['worksheet_productss'],many=True)
+        if serializer.is_valid() and serializer2.is_valid():
+            worksheet_productss=worksheet.work_sheet_productss.all()
+            for worksheet_products in worksheet_productss:
+                worksheet_products.delete()
             serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
+            serializer2.save()
+            content={'s':1,'message':'更新成功','data':{'worksheet':serializer.data,'worksheet_productss':serializer2.data}}
             return Response(content)
+        print(serializer.errors)
+        print(serializer2.errors)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self,request,id):
@@ -224,7 +261,7 @@ class WorkSheetProductsList(APIView):
         # 'amount':request.data['amount'],
         # 'worksheet':request.data['worksheet']}
         # print(data)
-        serializer=WorkSheetProductsSerializer(data=request.data)
+        serializer=WorkSheetProductsSerializer(data=request.data,many=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -772,5 +809,52 @@ class GetWorksheetProductss(APIView):
     def get(self,request,id):
         worksheet=WorkSheet.objects.get(id=id)
         work_sheet_productss=worksheet.work_sheet_productss.all()
-        serializer=WorkSheetProductsSerializer(work_sheet_productss,many=True)
+        data=[]
+        for i in range(len(work_sheet_productss)):
+            data.append({'product':work_sheet_productss[i].product.id,
+            'name':work_sheet_productss[i].product.name,
+            'code':work_sheet_productss[i].product.code,
+            'amount':work_sheet_productss[i].amount,
+            'unit':work_sheet_productss[i].product.unit})
+        return Response(data)
+
+class GetProductWithCode(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request):
+        try:
+            product=Product.objects.get(code=request.query_params.get('code'))
+            serializer=ProductSerializer(product)
+            return Response(serializer.data)
+
+        except Product.DoesNotExist:
+            return Response()
+
+class SearchWorksheet(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+    def get(self,request):
+        worksheets=WorkSheet.objects.all().order_by('date')
+        squad=request.query_params.get('squad')
+        status=request.query_params.get('status')
+        type1=request.query_params.get('type1')
+        type2=request.query_params.get('type2')
+        region=request.query_params.get('region')
+        project=request.query_params.get('project')
+        if  squad != '0':
+            worksheets=worksheets.filter(squad=squad)
+        if status != '0':
+            worksheets=worksheets.filter(status=status)
+        if type1 != '0':
+            worksheets=worksheets.filter(type1=type1)
+        if type2 != '0':
+            worksheets=worksheets.filter(type2=type2)
+        if region != '0':
+            worksheets=worksheets.filter(region=region)
+        if project != '0':
+            worksheets=worksheets.filter(project=project)
+        twentyPagenation=TwentyPagenation()
+        page_worksheets=twentyPagenation.paginate_queryset(queryset=worksheets,request=request,view=self)
+        serializer=WorkSheetSerializer(page_worksheets,many=True)
         return Response(serializer.data)

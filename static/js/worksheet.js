@@ -5,22 +5,11 @@ var worksheet = new Vue({
         squad:null,status:null,date:null,
         type1:null,type2:null,region:null,
         project:null,address:null,batch:null},
-      worksheet_productss:{n:1},
-      products:null,
-    },
-    created(){
-        axios.get('/product_list/')
-        .then(res => {
-            this.products=res.data
-        })
-        .catch(err => {
-            console.error(err); 
-        })
+      n:1,
     },
     methods:{
         new_products(){
-            var n=this.worksheet_productss.n;
-            var products=this.products;
+            var n=this.n;
             div=document.getElementById('productss_div')
             ele1 = document.createElement('input');
             ele1.onkeyup=function(){
@@ -31,13 +20,12 @@ var worksheet = new Vue({
                 e1.innerHTML="材料:--"
                 e2.innerHTML="單位:--"
                 e3.value=null
-                for (i = 0; i < products.length; i++) {
-                  if(input==products[i].code){
-                    e1.innerHTML="材料:"+products[i].name
-                    e2.innerHTML="單位:"+products[i].unit
-                    e3.value=products[i].id
-                  }
-                }
+                axios.get('/get_product_with_code/',{params:{code:input}})
+                .then(res => {
+                    e1.innerHTML="材料:"+res.data.name
+                    e2.innerHTML="單位:"+res.data.unit
+                    e3.value=res.data.id
+                })
             }
             ele2 = document.createElement('input');
             ele3=document.createElement('input');
@@ -95,30 +83,21 @@ var worksheet = new Vue({
             
             div.appendChild(br);
             div.appendChild(ele3);
-            this.worksheet_productss.n++;
+            this.n++;
         },
         submit(){
-            var worksheet_id;
-            axios.post('/worksheet_list/',this.worksheet_data)
-            .then(res => {
-                worksheet_id=res.data['data']['id']
-                product_elements=document.getElementsByName('product')
-                amount_elements=document.getElementsByName('amount')
-                var i;
+            product_elements=document.getElementsByName('product')
+            amount_elements=document.getElementsByName('amount')
+            data=[]
                 for (i = 0; i < product_elements.length; i++) {
-                    axios.post('/worksheet_products_list/',{product:product_elements[i].value,
-                    amount:amount_elements[i].value,
-                    worksheet:worksheet_id
-                    })
-                    .then(res => {
-                        console.log(res);
-                    })
-                    .catch(err => {
-                        window.alert('批料輸入錯誤')
-                    })
+                    data.push({product:product_elements[i].value,
+                        amount:amount_elements[i].value
+                        })
                 }
-                
-
+            axios.post('/worksheet_list/',{worksheet:this.worksheet_data,worksheet_productss:data})
+            .then(res => {
+                window.alert(res.data['message'])
+                location.reload()
             })
             .catch(err => {
                 window.alert('聯單新增錯誤')

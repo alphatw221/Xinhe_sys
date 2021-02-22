@@ -17,9 +17,9 @@ urlpatterns = [
     path('logout/',Logout.as_view()),
 
     #工作單 工作批料
-    path('worksheet_list/',WorkSheetList.as_view()),
-    path('worksheet_detail/<int:id>',WorkSheetDetails.as_view()),
-    path('worksheet_products_list/',WorkSheetProductsList.as_view()),
+    path('worksheet_list/',WorkSheetList.as_view()),  #同時新增工作單以及多個批料
+    path('worksheet_detail/<int:id>',WorkSheetDetails.as_view()), #同時修改工作單以及多個批料
+    path('worksheet_products_list/',WorkSheetProductsList.as_view()),  #一次新增多個
     path('worksheet_products_detail/<int:id>',WorkSheetProductsDetails.as_view()),
 
     #領貨單 領貨批料
@@ -57,4 +57,10 @@ urlpatterns = [
 
     #取得工作單的預估廖
     path('get_worksheet_productss/<int:id>',GetWorksheetProductss.as_view()),
+
+    #用料號取料名
+    path('get_product_with_code/',GetProductWithCode.as_view()),
+
+    #工作單篩選
+    path('search_worksheet/',SearchWorksheet.as_view()),
 ]
