@@ -13,6 +13,7 @@ var worksheet = new Vue({
         project_select:0,
         page:1,
         paginate_select:20,
+        serial_number_input:null,
     },
     created(){
         this.isFetching=true
@@ -31,7 +32,7 @@ var worksheet = new Vue({
     },
     methods:{
         update_data(){
-            axios.get('/search_worksheet/',{params:{squad:this.squad_select,status:this.status_select,
+            axios.get('/search_worksheet/',{params:{serial_number:this.serial_number_input,squad:this.squad_select,status:this.status_select,
                 type1:this.type1_select,type2:this.type2_select,region:this.region_select,
                 project:this.project_select,page:this.page,size:this.paginate_select}})
             .then(res => {

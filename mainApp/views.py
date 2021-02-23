@@ -836,12 +836,15 @@ class SearchWorksheet(APIView):
     premission_classes=[IsAuthenticated]
     def get(self,request):
         worksheets=WorkSheet.objects.all().order_by('date')
+        serial_number=request.query_params.get('serial_number')
         squad=request.query_params.get('squad')
         status=request.query_params.get('status')
         type1=request.query_params.get('type1')
         type2=request.query_params.get('type2')
         region=request.query_params.get('region')
         project=request.query_params.get('project')
+        if serial_number:
+            worksheets=worksheets.filter(serial_number=serial_number)
         if  squad != '0':
             worksheets=worksheets.filter(squad=squad)
         if status != '0':

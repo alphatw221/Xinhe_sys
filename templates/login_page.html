@@ -44,7 +44,7 @@ $(document).ready(function(){
                     if(response.token){
                       $.cookie('token', response.token, { expires:1,path:'/' });
                       window.alert('登入成功')
-                      window.location.replace("/control_panel/");
+                      window.location.replace("/dashboard_page/");
                     }
                     else{
                       window.alert('登入失敗')

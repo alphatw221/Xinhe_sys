@@ -52,52 +52,77 @@
         <label for="paginate">單頁資料數:</label>
         <select name="paginate" v-model="paginate_select"  v-on:change="update_data">
             <option value="20">20</option>
-            <option value="20">50</option>
+            <option value="50">50</option>
             <option value="100">100</option>
         </select>
+        <br>
+        <label for="serial_number">單號:</label>
+        <input type="text" v-model="serial_number_input" v-on:keyup="update_data">
     </div>
         
-    <div v-for="worksheet in worksheets" v-if="!isFetching">
+    <div >
         <table>
             <tr>
                 <td>
                     <span>聯單號:</span>
-                    <span v-html="worksheet.serial_number"></span>
                 </td>
                 <td>
-                    <span>工班:</span>
-                    <span v-html="dict.squad_dict[worksheet.squad]"></span>
+                    <span>工班::</span>
                 </td>
                 <td>
                     <span>狀態:</span>
-                    <span v-html="dict.status_dict[worksheet.status]"></span>
                 </td>
                 <td>
                     <span>類別1:</span>
-                    <span v-html="dict.type1_dict[worksheet.type1]"></span>
                 </td>
                 <td>
                     <span>類別2:</span>
-                    <span v-html="dict.type2_dict[worksheet.type2]"></span>
                 </td>
                 <td>
                     <span>區號:</span>
-                    <span v-html="dict.region_dict[worksheet.region]"></span>
                 </td>
                 <td>
                     <span>工程:</span>
-                    <span v-html="dict.project_dict[worksheet.project]"></span>
                 </td>
                 <td>
                     <span>地址:</span>
-                    <span v-html="worksheet.address"></span>
                 </td>
                 <td>
                     <span>批次:</span>
-                    <span v-html="worksheet.batch"></span>
                 </td>
                 <td>
                     <span>日期:</span>
+                </td>
+            </tr>
+            <tr v-for="worksheet in worksheets" v-if="!isFetching">
+                <td>
+                    <span v-html="worksheet.serial_number"></span>
+                </td>
+                <td>
+                    <span v-html="dict.squad_dict[worksheet.squad]"></span>
+                </td>
+                <td>
+                    <span v-html="dict.status_dict[worksheet.status]"></span>
+                </td>
+                <td>
+                    <span v-html="dict.type1_dict[worksheet.type1]"></span>
+                </td>
+                <td>
+                    <span v-html="dict.type2_dict[worksheet.type2]"></span>
+                </td>
+                <td>
+                    <span v-html="dict.region_dict[worksheet.region]"></span>
+                </td>
+                <td>
+                    <span v-html="dict.project_dict[worksheet.project]"></span>
+                </td>
+                <td>
+                    <span v-html="worksheet.address"></span>
+                </td>
+                <td>
+                    <span v-html="worksheet.batch"></span>
+                </td>
+                <td>
                     <span v-html="worksheet.date"></span>
                 </td>
                 <td>

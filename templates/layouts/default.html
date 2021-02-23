@@ -6,6 +6,23 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
         <title>Xinhe_SYS</title>
+        <script>
+           function logout(){
+            var token= $.cookie('token')
+            var csrf_token = '{{csrf_token}}'
+
+            $.ajax({
+                headers: { "X-CSRFToken": csrf_token ,"Authorization":"Token "+token},
+                url:'/logout/',
+                type:'post',
+                success:function(response){
+                    window.alert(response.message)
+                    $.cookie('token',null,{path:'/'})
+                    window.location.replace("/login_page/");
+                },
+            });
+        }
+        </script>
     </head>
     <body >
         
@@ -14,18 +31,19 @@
             <a href="/get_product_sheet_page/">新增領料單</a>
             <a href="/use_product_sheet_page/">新增完工用料單</a>
             <a href="/dashboard_page/">檢視工作聯單</a>
+            <a href="/xinhe_admin/">內建後台</a>
+            <button onclick="logout()">登出</button>
         </div>
 
                 {% block page %}
                 
                 {% endblock page %}
             
-        
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script> -->
-        
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script> -->
     </body>
 
-
+    
 
 </html>
