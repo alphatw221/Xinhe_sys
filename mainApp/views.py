@@ -140,6 +140,7 @@ def update_worksheet_page(request,id):
 class Login(APIView):
     def post(self,request):
         user = authenticate(username=request.data['username'], password=request.data['password'])
+        print(user)
         if user is not None:
             try:
                 token=Token.objects.get(user=user)
@@ -148,7 +149,7 @@ class Login(APIView):
                 pass
             
             token=Token.objects.create(user=user)
-
+        
             content={'token':token.key}
             return Response(content)
         return Response('登入失敗')
