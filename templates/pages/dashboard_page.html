@@ -1,12 +1,14 @@
 {% extends "layouts/default.html" %}
 
 {% block page %}
-<div class="container">
+<div class="col-10 main">
 <h1>工作單查詢</h1>
     <div  id="dashboard">
     
-    <div name="filter_bar">
-        <span>篩選條件:</span><br>
+    <div class="filter_bar" name="filter_bar">
+        <h3>篩選條件:</h3>
+        <label for="serial_number">單號:</label>
+        <input type="text" v-model="serial_number_input" v-on:keyup="update_data">
         <label for="squad">工班:</label>
         <select name="squad" v-model="squad_select" v-on:change="update_data">
             <option value="0" >全部</option>
@@ -55,19 +57,18 @@
             <option value="50">50</option>
             <option value="100">100</option>
         </select>
-        <br>
-        <label for="serial_number">單號:</label>
-        <input type="text" v-model="serial_number_input" v-on:keyup="update_data">
+        
     </div>
         
     <div >
-        <table>
+        <table class="table table-striped dashboard_table">
+            <thead>
             <tr>
                 <td>
                     <span>聯單號:</span>
                 </td>
                 <td>
-                    <span>工班::</span>
+                    <span>工班:</span>
                 </td>
                 <td>
                     <span>狀態:</span>
@@ -93,7 +94,10 @@
                 <td>
                     <span>日期:</span>
                 </td>
+                <td colspan="2"></td>
             </tr>
+        </thead>
+        <tbody>
             <tr v-for="worksheet in worksheets" v-if="!isFetching">
                 <td>
                     <span v-html="worksheet.serial_number"></span>
@@ -126,12 +130,13 @@
                     <span v-html="worksheet.date"></span>
                 </td>
                 <td>
-                    <button v-on:click="modify(worksheet.id)">修改</button>
+                    <button class="btn btn-outline-primary" v-on:click="modify(worksheet.id)">修改</button>
                 </td>
                 <td>
-                    <button v-on:click="del(worksheet.id)">刪除</button>
+                    <button class="btn btn-outline-danger" v-on:click="del(worksheet.id)">刪除</button>
                 </td>
             </tr>
+        </tbody>
         </table>
         
     </div>
