@@ -23,7 +23,7 @@ urlpatterns = [
     path('worksheet_products_detail/<int:id>',WorkSheetProductsDetails.as_view()),
 
     #領貨單 領貨批料
-    path('get_product_sheet_list/',GetProductSheetList.as_view()),
+    path('get_product_sheet_list/',GetProductSheetList.as_view()), #同時新增領貨單以及多個批料
     path('get_product_sheet_detail/<int:id>',GetProductSheetDetails.as_view()),
     path('get_product_sheet_products_list/',GetProductSheetProductsList.as_view()),
     path('get_product_sheet_products_detail/<int:id>',GetProductSheetProductsDetails.as_view()),

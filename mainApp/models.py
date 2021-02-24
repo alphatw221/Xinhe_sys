@@ -113,8 +113,8 @@ class GetProductSheetProducts(models.Model):
 
     product=models.ForeignKey('Product',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
     amount=models.IntegerField()
-    get_product_sheet=models.ForeignKey('GetProductSheet',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
-    warehouse=models.ForeignKey('Warehouse',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
+    get_product_sheet=models.ForeignKey('GetProductSheet',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
+    warehouse=models.ForeignKey('Warehouse',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
     
     def __str__(self):
         return str(self.id)

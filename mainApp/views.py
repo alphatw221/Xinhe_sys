@@ -314,14 +314,34 @@ class GetProductSheetList(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        serializer=GetProductSheetSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        print(serializer.errors)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer1=GetProductSheetSerializer(data=request.data['get_product_sheet'])
+        productss=request.data['get_product_sheet_productss']
+        
+        if serializer1.is_valid() :
+            serializer1.save()
+            for products in productss:
+                products['get_product_sheet']=serializer1.data['id']
+            serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
+            if serializer2.is_valid():
+                serializer2.save()
+                sheet_excel={'serial_number':serializer1.data['serial_number'],
+                'squad':Squad.objects.get(id=serializer1.data['squad']).name,
+                'warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']).name,
+                'date':serializer1.data['date'], }
+                productss_excel=[]
+                for products in productss:
+                    product=Product.objects.get(id=products['product'])
+                    productss_excel.append({'code':product.code,
+                    'name':product.name,
+                    'amount':products['amount'],
+                    'unit':product.unit,})
+                content={'s':1,'message':'新增成功','data':{'get_product_sheet':sheet_excel,'get_product_sheet_productss':productss_excel}}
+                return Response(content)
+            print(serializer2.errors)
+            GetProductSheet.objects.get(id=serializer1.data['id']).delete()
+            return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
+        print(serializer1.errors)
+        return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class GetProductSheetDetails(APIView):
 
