@@ -4,6 +4,7 @@ var worksheet = new Vue({
       get_product_sheet_data:{serial_number:null,squad:null,date:null,warehouse:null},
       n:1,
       warehouses:null,
+      export_check:false,
     },
     methods:{
         new_products(){
@@ -91,7 +92,10 @@ var worksheet = new Vue({
             axios.post('/get_product_sheet_list/',{get_product_sheet:this.get_product_sheet_data,get_product_sheet_productss:data})
             .then(res => {
                 this.export_data=res.data['data']
-                this.export()
+                if(this.export_check){
+                  this.export()
+                }
+                
                 window.alert(res.data['message'])
                 
             })

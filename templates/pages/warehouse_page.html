@@ -1,0 +1,61 @@
+{% extends "layouts/default.html" %}
+
+{% block page %}
+<div class="col-10 main">
+<h1>倉儲查詢</h1>
+    <div  id="warehouse_dashboard">
+    
+    <div class="filter_bar" name="filter_bar">
+        <h3>篩選條件:</h3>
+        <label for="squad">工班:</label><select name="squad" v-model="squad" v-on:change="update_warehouse">
+            {% for squad in squads %}
+            <option value="{{squad.id}}">{{squad.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="warehouse" >倉庫:</label>
+        <select  v-model="warehouse">
+                <option v-for="item in warehouses" :value="item.id" v-html="item.name"></option>
+        </select><br>
+       
+        <button v-on:click="add_product">新增查詢單料</button>
+        <div id="products_div" v-for="(product,index) in products">
+            <label >料號:</label>
+            <input type="text" name="code" v-model="product.code" v-on:keyup="search_product(index)">
+            <input type="text" v-model="product.name" readonly>
+            <input type="text" v-model="product.unit" readonly>
+            <input type="hidden" v-model="product.id">
+            <button v-on:click="cancel_product(index)">取消</button>
+        </div>
+        <button v-if="products.length>0" v-on:click="search">查詢</button>
+    </div>
+        
+    <div >
+        
+        
+    </div>
+        <div v-for="(inout,key,index) in products_inout">
+            <span v-html="'料名:'+dict.product_dict[key].name"></span><br>
+                <span>日期:</span>
+                <span>數量:</span>
+                <span>進出:</span><br>
+                <div v-for="item in inout">
+                    <span v-html="item.date"></span>
+                    <span v-html="item.amount"></span>
+                    <span v-if="item.get_product_sheet">進料</span>
+                    <span v-if="item.use_product_sheet" >出料</span>
+                    
+
+                </div>
+            </table>
+        </div>
+            
+        
+       
+
+
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="/static/js/warehouse_page.js"></script>
+{% endblock page %}

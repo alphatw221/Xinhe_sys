@@ -12,6 +12,7 @@ urlpatterns = [
     path('use_product_sheet_page/',use_product_page),
     path('dashboard_page/',dashboard_page),
     path('update_worksheet_page/<int:id>',update_worksheet_page),
+    path('warehouse_page/',warehouse_page),
     #api
     path('login/',Login.as_view()),
     path('logout/',Logout.as_view()),
@@ -63,4 +64,7 @@ urlpatterns = [
 
     #工作單篩選
     path('search_worksheet/',SearchWorksheet.as_view()),
+
+    #取得倉庫所有進貨出貨資料
+    path('get_warehouse_inout/<int:id>',GetWarehouseInOut.as_view()),
 ]

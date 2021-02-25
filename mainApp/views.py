@@ -19,6 +19,7 @@ from rest_framework.authtoken.models import Token
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import os 
 from django.conf import settings
+import json
 
 class TwentyPagenation(PageNumberPagination):
         page_size = 20
@@ -135,6 +136,17 @@ def update_worksheet_page(request,id):
     'projects':Project.objects.all()}
     return render(request,'pages/update_worksheet_page.html',context)
 
+def warehouse_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={
+    'squads':Squad.objects.all(),
+    'Workers':Worker.objects.all()}
+    return render(request,'pages/warehouse_page.html',context)
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -321,6 +333,7 @@ class GetProductSheetList(APIView):
             serializer1.save()
             for products in productss:
                 products['get_product_sheet']=serializer1.data['id']
+                products['date']=serializer1.data['date']
             serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
             if serializer2.is_valid():
                 serializer2.save()
@@ -779,6 +792,9 @@ class GetAllDict(APIView):
     premission_classes=[IsAuthenticated]
 
     def get(self,request):
+
+        product_dict=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
+
         squads=Squad.objects.all()
         squad_dict={}
         i=0
@@ -816,7 +832,7 @@ class GetAllDict(APIView):
         for i in range(len(projects)):
             project_dict[projects[i].id]=projects[i].name
 
-        data={
+        data={'product_dict':product_dict,
             'squad_dict':squad_dict,'status_dict':status_dict,
             'type1_dict':type1_dict,'type2_dict':type2_dict,
             'region_dict':region_dict,'project_dict':project_dict
@@ -882,3 +898,36 @@ class SearchWorksheet(APIView):
         page_worksheets=twentyPagenation.paginate_queryset(queryset=worksheets,request=request,view=self)
         serializer=WorkSheetSerializer(page_worksheets,many=True)
         return Response(serializer.data)
+
+class GetWarehouseInOut(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            products_id=request.data['ids']
+            warehouse=Warehouse.objects.get(id=id)
+            data={}
+            for product_id in products_id:
+                get_productss=warehouse.get_product_sheet_productss.filter(product=product_id)
+                use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
+                data[product_id]=self.merge(get_productss,use_productss)
+            return Response(data)
+        except:
+            return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def merge(self,a,b):
+        i=0
+        j=0
+        data=[]
+        while(i<len(a) and j<len(b)):
+            if a[i].date>=b[j].date:
+                data+=(GetProductSheetProductsSerializer(a[i]).data)
+                i=i+1
+            else:
+                data+=(UseProductSheetProductsSerializer(b[j]).data)
+                j=j+1
+        if i==len(a):
+            data+=(UseProductSheetProductsSerializer(b[j:len(b)],many=True).data)
+        elif j==len(b):
+            data+=(GetProductSheetProductsSerializer(a[i:len(a)],many=True).data)
+        return data
