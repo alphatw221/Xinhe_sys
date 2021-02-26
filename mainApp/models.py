@@ -22,6 +22,7 @@ class Warehouse(models.Model):
     name=models.CharField(unique=True,max_length=30)
     location=models.CharField(blank=True,null=True,max_length=30)
     squad=models.ForeignKey('Squad',related_name='warehouses',on_delete=models.CASCADE)
+    project=models.ForeignKey('Project',related_name='warehouses',on_delete=models.DO_NOTHING,null=True,blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -61,7 +62,6 @@ class Region(models.Model):
 
 class Project(models.Model):
     name=models.CharField(unique=True,max_length=30)
-
     def __str__(self):
         return str(self.name)
 
@@ -119,6 +119,8 @@ class GetProductSheetProducts(models.Model):
     get_product_sheet=models.ForeignKey('GetProductSheet',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
     warehouse=models.ForeignKey('Warehouse',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
     date=models.DateField()
+    out_warehouse=models.ForeignKey('Warehouse',related_name='out_productss',on_delete=models.CASCADE,null=True,blank=True,default=None)
+
     def __str__(self):
         return str(self.id)
 

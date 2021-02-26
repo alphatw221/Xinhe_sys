@@ -30,7 +30,7 @@ urlpatterns = [
     path('get_product_sheet_products_detail/<int:id>',GetProductSheetProductsDetails.as_view()),
 
     #完工單 完工批料
-    path('use_product_sheet_list/',UseProductSheetList.as_view()),
+    path('use_product_sheet_list/',UseProductSheetList.as_view()), #同時新增完工單以及多個批料
     path('use_product_sheet_detail/<int:id>',UseProductSheetDetails.as_view()),
     path('use_product_sheet_products_list/',UseProductSheetProductsList.as_view()),
     path('use_product_sheet_products_detail/<int:id>',UseProductSheetProductsDetails.as_view()),
@@ -51,7 +51,7 @@ urlpatterns = [
     path('get_squad_warehouses/<int:id>',GetSquadWarehouses.as_view()),
 
     #查找工班的工作單
-    path('get_squad_worksheet/<int:id>',GetSquadWorkSheet.as_view()),
+    path('get_worksheet_with_serial_number/',GetWorksheetWithSerialNumber.as_view()),
 
     #取得table的id字典
     path('get_all_dict/',GetAllDict.as_view()),

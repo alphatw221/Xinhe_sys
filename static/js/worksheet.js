@@ -4,7 +4,7 @@ var worksheet = new Vue({
       worksheet_data:{serial_number:null,
         squad:null,status:null,date:null,
         type1:null,type2:null,region:null,
-        project:null,address:null,batch:null},
+        project:null,address:null,batch:null,point:null},
       n:1,
     },
     methods:{

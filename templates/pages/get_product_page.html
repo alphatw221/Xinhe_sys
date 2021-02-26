@@ -23,7 +23,21 @@
             </td>
         </tr>
         <tr><td><label for="date">日期:</label></td><td><input type="date" name="date" v-model="get_product_sheet_data.date"></td></tr>
-
+        <tr><td><label for="squad">出料公司:</label></td><td><select name="squad"  v-model="out_squad" v-on:change="update_out_warehouse">
+            {% for squad in squads %}
+            <option value="{{squad.id}}">{{squad.name}}</option>
+            {% endfor %}
+        </select></td></tr>
+        <tr>
+            <td> 
+                <label for="warehouse" >出料倉庫:</label>
+            </td>
+            <td>
+                <select  v-model="out_warehouse" >
+                    <option v-for="item in out_warehouses" :value="item.id" v-html="item.name"></option>
+                </select>
+            </td>
+        </tr>
         <tr><td colspan="2"><button class="btn btn-secondary" v-on:click="new_products">新增批料</button></td></tr>
         
         <tr><td colspan="2"><div id="productss_div"></div></td></tr>

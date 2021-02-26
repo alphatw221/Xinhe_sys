@@ -34,21 +34,24 @@
         
     </div>
         <div v-for="(inout,key,index) in products_inout">
-            <span v-html="'料名:'+dict.product_dict[key].name"></span><br>
+            <span v-html="'料名:'+product_dict[key].name"></span><br>
                 <span>日期:</span>
                 <span>數量:</span>
+                <span>單號:</span>
                 <span>進出:</span><br>
                 <div v-for="item in inout">
                     <span v-html="item.date"></span>
                     <span v-html="item.amount"></span>
+                    <span v-if="item.get_product_sheet" v-html="get_product_sheet_dict[item.get_product_sheet].serial_number"></span>
                     <span v-if="item.get_product_sheet">進料</span>
+                    <span v-if="item.use_product_sheet" v-html="use_product_sheet_dict[item.use_product_sheet].serial_number"></span>
                     <span v-if="item.use_product_sheet" >出料</span>
                     
 
                 </div>
-            </table>
+            <span>總數:</span><span v-html="total[key]"></span>
         </div>
-            
+        
         
        
 

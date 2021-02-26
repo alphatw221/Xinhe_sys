@@ -5,6 +5,9 @@ var worksheet = new Vue({
       n:1,
       warehouses:null,
       export_check:false,
+      out_squad:null,
+      out_warehouse:null,
+      out_warehouses:null,
     },
     methods:{
         new_products(){
@@ -89,7 +92,7 @@ var worksheet = new Vue({
                         warehouse:this.get_product_sheet_data.warehouse
                         })
                 }
-            axios.post('/get_product_sheet_list/',{get_product_sheet:this.get_product_sheet_data,get_product_sheet_productss:data})
+            axios.post('/get_product_sheet_list/',{get_product_sheet:this.get_product_sheet_data,get_product_sheet_productss:data,out_warehouse:this.out_warehouse})
             .then(res => {
                 this.export_data=res.data['data']
                 if(this.export_check){
@@ -111,6 +114,14 @@ var worksheet = new Vue({
             })
             
         },
+        update_out_warehouse(){
+          this.out_warehouse=null
+          axios.get('/get_squad_warehouses/'+this.out_squad)
+          .then(res => {
+              this.out_warehouses=res.data
+          })
+          
+      },
         export(){
             var sheet=this.export_data.get_product_sheet
             var productss=this.export_data.get_product_sheet_productss

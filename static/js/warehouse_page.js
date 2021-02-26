@@ -7,15 +7,12 @@ var worksheet = new Vue({
         warehouse:null,
         paginate_select:20,
         products:[],
-        dict:null,
+        product_dict:null,
+        get_product_sheet_dict:null,
+        use_product_sheet_dict:null,
         products_inout:{},
-    },
-    created(){
-        axios.get('/get_all_dict/')
-            .then(res => {
-                this.dict=res.data
-                console.log(this.dict)
-            }).catch(err => { console.error(err);   })
+        total:{},
+
     },
     methods:{
         update_warehouse(){
@@ -42,14 +39,19 @@ var worksheet = new Vue({
                 })
         },
         search(){
+            console.log(this.squad)
             products_id=[]
             for(i=0;i<this.products.length;i++){
                 products_id.push(this.products[i].id)
             }
             console.log(products_id)
-            axios.post('/get_warehouse_inout/'+this.warehouse,{ids:products_id})
+            axios.post('/get_warehouse_inout/'+this.warehouse,{ids:products_id,squad:this.squad})
                 .then(res => {
-                    this.products_inout=res.data
+                    this.product_dict=res.data.product_dict
+                    this.get_product_sheet_dict=res.data.get_product_sheet_dict
+                    this.use_product_sheet_dict=res.data.use_product_sheet_dict
+                    this.products_inout=res.data.inout
+                    this.total=res.data.total
                     console.log(this.products_inout)
                 })
         },

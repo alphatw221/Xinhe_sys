@@ -20,7 +20,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import os 
 from django.conf import settings
 import json
-
+from django.db.models import Avg, Max, Min, Sum
 class TwentyPagenation(PageNumberPagination):
         page_size = 20
         page_size_query_param = 'size'  
@@ -334,6 +334,7 @@ class GetProductSheetList(APIView):
             for products in productss:
                 products['get_product_sheet']=serializer1.data['id']
                 products['date']=serializer1.data['date']
+                products['out_warehouse']=request.data['out_warehouse']
             serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
             if serializer2.is_valid():
                 serializer2.save()
@@ -455,14 +456,25 @@ class UseProductSheetList(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        serializer=UseProductSheetSerializer(data=request.data)
-        print(request.data)
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        print(serializer.errors)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer1=UseProductSheetSerializer(data=request.data['use_product_sheet'])
+        productss=request.data['use_product_sheet_productss']
+        
+        if serializer1.is_valid() :
+            serializer1.save()
+            for products in productss:
+                products['use_product_sheet']=serializer1.data['id']
+                products['date']=serializer1.data['date']
+            serializer2=UseProductSheetProductsSerializer(data=productss,many=True)
+            if serializer2.is_valid():
+                serializer2.save()
+                
+                content={'s':1,'message':'新增成功','data':{'use_product_sheet':serializer1.data,'use_product_sheet_productss':serializer2.data}}
+                return Response(content)
+            print(serializer2.errors)
+            UseProductSheet.objects.get(id=serializer1.data['id']).delete()
+            return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
+        print(serializer1.errors)
+        return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UseProductSheetDetails(APIView):
 
@@ -775,17 +787,25 @@ class GetSquadWarehouses(APIView):
         serializer=WarehouseSerializer(warehouses,many=True)
         return Response(serializer.data)
 
-class GetSquadWorkSheet(APIView):
-
+class GetWorksheetWithSerialNumber(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
-
-    def get(self,request,id):
-        squad=Squad.objects.get(id=id)
-        work_sheets=squad.work_sheets.all()
-        serializer=WorkSheetSerializer(work_sheets,many=True)
-        return Response(serializer.data)
-
+    def get(self,request):
+        try:
+            data={}
+            serial_number=request.query_params.get('serial_number')
+            worksheet=WorkSheet.objects.get(serial_number=serial_number)
+            data['squad']={worksheet.squad.id:worksheet.squad.name}
+            # print(worksheet.project)
+            print(worksheet.squad)
+            print(worksheet.project.warehouses.all())
+            print(worksheet.project.warehouses.filter(squad=worksheet.squad.id))
+            data['warehouse']={worksheet.project.warehouses.get(squad=worksheet.squad.id).id:worksheet.project.warehouses.get(squad=worksheet.squad.id).name}
+            data['point']=worksheet.point
+            print(data)
+            return Response(data)
+        except:
+            return Response()
 class GetAllDict(APIView):
 
     authentication_classes=[TokenAuthentication]
@@ -793,7 +813,6 @@ class GetAllDict(APIView):
 
     def get(self,request):
 
-        product_dict=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
 
         squads=Squad.objects.all()
         squad_dict={}
@@ -832,7 +851,7 @@ class GetAllDict(APIView):
         for i in range(len(projects)):
             project_dict[projects[i].id]=projects[i].name
 
-        data={'product_dict':product_dict,
+        data={
             'squad_dict':squad_dict,'status_dict':status_dict,
             'type1_dict':type1_dict,'type2_dict':type2_dict,
             'region_dict':region_dict,'project_dict':project_dict
@@ -903,14 +922,25 @@ class GetWarehouseInOut(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
     def post(self,request,id):
+        squad=Squad.objects.get(id=request.data['squad'])
+        data={}
+        inout={}
+        total={}
+        data['product_dict']=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
+        data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in squad.get_product_sheets.all())
+        data['use_product_sheet_dict']=dict((x.pk,UseProductSheetSerializer(x).data) for x in squad.use_product_sheets.all())
         try:
             products_id=request.data['ids']
             warehouse=Warehouse.objects.get(id=id)
-            data={}
             for product_id in products_id:
                 get_productss=warehouse.get_product_sheet_productss.filter(product=product_id)
+                get_productss_total=get_productss.aggregate(Sum('amount'))
                 use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
-                data[product_id]=self.merge(get_productss,use_productss)
+                use_productss_total=use_productss.aggregate(Sum('amount'))
+                inout[product_id]=self.merge(get_productss,use_productss)
+                total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])
+            data['inout']=inout
+            data['total']=total
             return Response(data)
         except:
             return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -921,13 +951,18 @@ class GetWarehouseInOut(APIView):
         data=[]
         while(i<len(a) and j<len(b)):
             if a[i].date>=b[j].date:
-                data+=(GetProductSheetProductsSerializer(a[i]).data)
+                print(GetProductSheetProductsSerializer(a[i]).data)
+                data.append(GetProductSheetProductsSerializer(a[i]).data)
                 i=i+1
             else:
-                data+=(UseProductSheetProductsSerializer(b[j]).data)
+                print(UseProductSheetProductsSerializer(b[j]).data)
+                data.append(UseProductSheetProductsSerializer(b[j]).data)
                 j=j+1
         if i==len(a):
-            data+=(UseProductSheetProductsSerializer(b[j:len(b)],many=True).data)
+            for x in b[j:len(b)]:
+                data.append(UseProductSheetProductsSerializer(x).data)
         elif j==len(b):
-            data+=(GetProductSheetProductsSerializer(a[i:len(a)],many=True).data)
+            for x in a[i:len(a)]:
+                data.append(GetProductSheetProductsSerializer(x).data)
+        print(data)
         return data
