@@ -800,8 +800,10 @@ class GetWorksheetWithSerialNumber(APIView):
             print(worksheet.squad)
             print(worksheet.project.warehouses.all())
             print(worksheet.project.warehouses.filter(squad=worksheet.squad.id))
-            data['warehouse']={worksheet.project.warehouses.get(squad=worksheet.squad.id).id:worksheet.project.warehouses.get(squad=worksheet.squad.id).name}
-            data['point']=worksheet.point
+            print((worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id)
+
+            data['warehouse']={(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id:(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].name}
+            data['point']=int(worksheet.point)
             print(data)
             return Response(data)
         except:
