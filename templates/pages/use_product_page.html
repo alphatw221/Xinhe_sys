@@ -7,20 +7,24 @@
     
     
     <table class="table">
-        <tr><td><label for="serial_number">聯單號:</label></td><td><input type="text" name="serial_number" v-on:keyup="search_worksheets" v-model="serial_number"></td></tr>
+        <tr><td><label for="serial_number">聯單號:</label></td><td><input type="text" name="serial_number" v-on:keyup="search_worksheets" v-model="use_product_sheet_data.serial_number"></td></tr>
         <tr><td colspan="2"><span v-html="message"></span></td></tr>
         
         <tr><td><label for="squad">工班:</label></td><td> 
-            <input type="text" v-model="use_product_sheet_data.squad" readonly>
+            <input type="text" v-model="squad" readonly >
         </td></tr>
 
         <tr><td><label for="warehouse" >倉庫:</label></td><td>
-            <input type="text" v-model="use_product_sheet_data.warehouse" readonly>
+            <input type="text" v-model="warehouse" readonly>
         </td></tr>
 
         
         
-        <tr><td><label for="point">點數:</label></td><td><input type="number" name="point" v-model="use_product_sheet_data.point" ></td></tr>
+        <tr><td><label for="point">點數:</label></td
+            ><td>
+                <input type="number" name="point" v-model="use_product_sheet_data.point" >
+            </td>
+        </tr>
         
         <tr><td> <label for="date">日期:</label></td><td> <input type="date" name="date" v-model="use_product_sheet_data.date"></td></tr>
 

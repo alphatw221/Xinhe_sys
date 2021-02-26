@@ -1,12 +1,10 @@
 var worksheet = new Vue({
     el: '#use_product_sheet',
     data: {
-      use_product_sheet_data:{worksheet:null,squad:null,date:null,warehouse:null,discription:null,point:null},
+      use_product_sheet_data:{serial_number:null,worksheet:null,status:null,squad:null,date:null,warehouse:null,discription:null,point:null},
       n:1,
       squad:'',
       warehouse:'',
-      point:'',
-      serial_number:null,
       message:'無 對應聯單資料',
     },
     methods:{
@@ -101,9 +99,19 @@ var worksheet = new Vue({
             })
         },
         search_worksheets(){
-            axios.get('/get_worksheet_with_serial_number/',{params:{serial_number:this.serial_number}})
+            axios.get('/get_worksheet_with_serial_number/',{params:{serial_number:this.use_product_sheet_data.serial_number}})
             .then(res => {
-                console.log(res)
+                if(res.data){
+                    this.message='有 對應聯單資料'
+                }else{
+                    this.message='無 對應聯單資料'
+                }
+                this.use_product_sheet_data.squad=res.data.squad_id
+                this.squad=res.data.squad_name
+                this.use_product_sheet_data.warehouse=res.data.warehouse_id
+                this.warehouse=res.data.warehouse_name
+                this.use_product_sheet_data.point=res.data.point
+                this.use_product_sheet_data.worksheet=res.data.worksheet_id
             })
         }
     }

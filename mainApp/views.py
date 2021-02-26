@@ -467,7 +467,10 @@ class UseProductSheetList(APIView):
             serializer2=UseProductSheetProductsSerializer(data=productss,many=True)
             if serializer2.is_valid():
                 serializer2.save()
-                
+                #改工作聯單狀態
+                worksheet=WorkSheet.objects.get(id=request.data['use_product_sheet']['worksheet'])
+                worksheet.status=Status.objects.get(id=request.data['use_product_sheet']['status'])
+                worksheet.save()
                 content={'s':1,'message':'新增成功','data':{'use_product_sheet':serializer1.data,'use_product_sheet_productss':serializer2.data}}
                 return Response(content)
             print(serializer2.errors)
@@ -795,16 +798,12 @@ class GetWorksheetWithSerialNumber(APIView):
             data={}
             serial_number=request.query_params.get('serial_number')
             worksheet=WorkSheet.objects.get(serial_number=serial_number)
-            data['squad']={worksheet.squad.id:worksheet.squad.name}
-            # print(worksheet.project)
-            print(worksheet.squad)
-            print(worksheet.project.warehouses.all())
-            print(worksheet.project.warehouses.filter(squad=worksheet.squad.id))
-            print((worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id)
-
-            data['warehouse']={(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id:(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].name}
+            data['worksheet_id']=worksheet.id
+            data['squad_id']=worksheet.squad.id
+            data['squad_name']=worksheet.squad.name
+            data['warehouse_id']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id
+            data['warehouse_name']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].name
             data['point']=int(worksheet.point)
-            print(data)
             return Response(data)
         except:
             return Response()
@@ -953,11 +952,9 @@ class GetWarehouseInOut(APIView):
         data=[]
         while(i<len(a) and j<len(b)):
             if a[i].date>=b[j].date:
-                print(GetProductSheetProductsSerializer(a[i]).data)
                 data.append(GetProductSheetProductsSerializer(a[i]).data)
                 i=i+1
             else:
-                print(UseProductSheetProductsSerializer(b[j]).data)
                 data.append(UseProductSheetProductsSerializer(b[j]).data)
                 j=j+1
         if i==len(a):
@@ -966,5 +963,4 @@ class GetWarehouseInOut(APIView):
         elif j==len(b):
             for x in a[i:len(a)]:
                 data.append(GetProductSheetProductsSerializer(x).data)
-        print(data)
         return data
