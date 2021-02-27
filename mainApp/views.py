@@ -928,8 +928,9 @@ class GetWarehouseInOut(APIView):
         inout={}
         total={}
         data['product_dict']=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
-        data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in squad.get_product_sheets.all())
+        data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in GetProductSheet.objects.all())
         data['use_product_sheet_dict']=dict((x.pk,UseProductSheetSerializer(x).data) for x in squad.use_product_sheets.all())
+
         try:
             products_id=request.data['ids']
             warehouse=Warehouse.objects.get(id=id)
@@ -938,29 +939,72 @@ class GetWarehouseInOut(APIView):
                 get_productss_total=get_productss.aggregate(Sum('amount'))
                 use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
                 use_productss_total=use_productss.aggregate(Sum('amount'))
-                inout[product_id]=self.merge(get_productss,use_productss)
-                total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])
+                out_productss=warehouse.out_productss.filter(product=product_id)
+                out_productss_total=out_productss.aggregate(Sum('amount'))
+                inout[product_id]=self.merge(get_productss,use_productss,out_productss)
+                total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
             data['inout']=inout
             data['total']=total
             return Response(data)
         except:
             return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def merge(self,a,b):
+    def merge(self,a,b,c):
         i=0
         j=0
+        k=0
         data=[]
-        while(i<len(a) and j<len(b)):
-            if a[i].date>=b[j].date:
+        while(i<len(a) and j<len(b) and k<len(c)):
+            if a[i].date <= b[j].date and a[i].date <= c[k].date:
                 data.append(GetProductSheetProductsSerializer(a[i]).data)
                 i=i+1
-            else:
+            elif b[j].date <= a[i].date and b[j].date <= c[k].date:
                 data.append(UseProductSheetProductsSerializer(b[j]).data)
                 j=j+1
-        if i==len(a):
-            for x in b[j:len(b)]:
-                data.append(UseProductSheetProductsSerializer(x).data)
-        elif j==len(b):
-            for x in a[i:len(a)]:
-                data.append(GetProductSheetProductsSerializer(x).data)
+            else:
+                date.append(GetProductSheetProductsSerializer(c[k]).data)
+                k=k+1
+        if i == len(a):
+            while(j<len(b) and k<len(c)):
+                if b[j].date <= c[k].date:
+                    data.append(UseProductSheetProductsSerializer(b[j]).data)
+                    j=j+1
+                else:
+                    date.append(GetProductSheetProductsSerializer(c[k]).data)
+                    k=k+1
+            if j==len(b):
+                for x in c[k:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+            else:
+                for x in b[j:len(b)]:
+                    data.append(UseProductSheetProductsSerializer(x).data)
+
+        elif j== len(b):
+            while(i<len(a) and k<len(c)):
+                if a[i].date <= c[k].date:
+                    data.append(GetProductSheetProductsSerializer(a[i]).data)
+                    i=i+1
+                else:
+                    date.append(GetProductSheetProductsSerializer(c[k]).data)
+                    k=k+1
+            if i==len(a):
+                for x in c[k:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+            else:
+                for x in a[i:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+        elif k==len(c):
+            while(i<len(a) and j<len(b)):
+                if a[i].date <= b[j].date:
+                    data.append(GetProductSheetProductsSerializer(a[i]).data)
+                    i=i+1
+                else:
+                    data.append(UseProductSheetProductsSerializer(b[j]).data)
+                    j=j+1
+            if i==len(a):
+                for x in b[j:len(b)]:
+                    data.append(UseProductSheetProductsSerializer(x).data)
+            else:
+                for x in a[i:len(a)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
         return data

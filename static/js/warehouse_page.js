@@ -39,12 +39,10 @@ var worksheet = new Vue({
                 })
         },
         search(){
-            console.log(this.squad)
             products_id=[]
             for(i=0;i<this.products.length;i++){
                 products_id.push(this.products[i].id)
             }
-            console.log(products_id)
             axios.post('/get_warehouse_inout/'+this.warehouse,{ids:products_id,squad:this.squad})
                 .then(res => {
                     this.product_dict=res.data.product_dict
@@ -52,7 +50,7 @@ var worksheet = new Vue({
                     this.use_product_sheet_dict=res.data.use_product_sheet_dict
                     this.products_inout=res.data.inout
                     this.total=res.data.total
-                    console.log(this.products_inout)
+                    console.log(res.data)
                 })
         },
 
