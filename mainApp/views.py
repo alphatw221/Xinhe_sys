@@ -931,24 +931,37 @@ class GetWarehouseInOut(APIView):
         data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in GetProductSheet.objects.all())
         data['use_product_sheet_dict']=dict((x.pk,UseProductSheetSerializer(x).data) for x in squad.use_product_sheets.all())
 
-        try:
-            products_id=request.data['ids']
-            warehouse=Warehouse.objects.get(id=id)
-            for product_id in products_id:
-                get_productss=warehouse.get_product_sheet_productss.filter(product=product_id)
-                get_productss_total=get_productss.aggregate(Sum('amount'))
-                use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
-                use_productss_total=use_productss.aggregate(Sum('amount'))
-                out_productss=warehouse.out_productss.filter(product=product_id)
-                out_productss_total=out_productss.aggregate(Sum('amount'))
-                inout[product_id]=self.merge(get_productss,use_productss,out_productss)
-                total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
-            data['inout']=inout
-            data['total']=total
-            return Response(data)
-        except:
-            return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        # try:
+        #     products_id=request.data['ids']
+        #     warehouse=Warehouse.objects.get(id=id)
+        #     for product_id in products_id:
+        #         get_productss=warehouse.get_product_sheet_productss.filter(product=product_id)
+        #         get_productss_total=get_productss.aggregate(Sum('amount'))
+        #         use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
+        #         use_productss_total=use_productss.aggregate(Sum('amount'))
+        #         out_productss=warehouse.out_productss.filter(product=product_id)
+        #         out_productss_total=out_productss.aggregate(Sum('amount'))
+        #         inout[product_id]=self.merge(get_productss,use_productss,out_productss)
+        #         total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
+        #     data['inout']=inout
+        #     data['total']=total
+        #     return Response(data)
+        # except:
+        #     return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        products_id=request.data['ids']
+        warehouse=Warehouse.objects.get(id=id)
+        for product_id in products_id:
+            get_productss=warehouse.get_product_sheet_productss.filter(product=product_id).order_by('date')
+            get_productss_total=get_productss.aggregate(Sum('amount'))
+            use_productss=warehouse.use_product_sheet_productss.filter(product=product_id).order_by('date')
+            use_productss_total=use_productss.aggregate(Sum('amount'))
+            out_productss=warehouse.out_productss.filter(product=product_id).order_by('date')
+            out_productss_total=out_productss.aggregate(Sum('amount'))
+            inout[product_id]=self.merge(get_productss,use_productss,out_productss)
+            total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
+        data['inout']=inout
+        data['total']=total
+        return Response(data)
     def merge(self,a,b,c):
         i=0
         j=0
@@ -962,7 +975,7 @@ class GetWarehouseInOut(APIView):
                 data.append(UseProductSheetProductsSerializer(b[j]).data)
                 j=j+1
             else:
-                date.append(GetProductSheetProductsSerializer(c[k]).data)
+                data.append(GetProductSheetProductsSerializer(c[k]).data)
                 k=k+1
         if i == len(a):
             while(j<len(b) and k<len(c)):
@@ -970,7 +983,7 @@ class GetWarehouseInOut(APIView):
                     data.append(UseProductSheetProductsSerializer(b[j]).data)
                     j=j+1
                 else:
-                    date.append(GetProductSheetProductsSerializer(c[k]).data)
+                    data.append(GetProductSheetProductsSerializer(c[k]).data)
                     k=k+1
             if j==len(b):
                 for x in c[k:len(c)]:
@@ -985,7 +998,7 @@ class GetWarehouseInOut(APIView):
                     data.append(GetProductSheetProductsSerializer(a[i]).data)
                     i=i+1
                 else:
-                    date.append(GetProductSheetProductsSerializer(c[k]).data)
+                    data.append(GetProductSheetProductsSerializer(c[k]).data)
                     k=k+1
             if i==len(a):
                 for x in c[k:len(c)]:

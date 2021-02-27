@@ -43,9 +43,10 @@
                     <span v-html="item.date"></span>
                     <span v-html="item.amount"></span>
                     <span v-if="item.get_product_sheet" v-html="get_product_sheet_dict[item.get_product_sheet].serial_number"></span>
-                    <span v-if="item.out_warehouse==warehouse">出料</span>
-                    <span v-else>進料</span>
                     <span v-if="item.use_product_sheet" v-html="use_product_sheet_dict[item.use_product_sheet].serial_number"></span>
+                    <span v-if="item.out_warehouse==warehouse">出料</span>
+                    <span v-else-if="item.get_product_sheet">進料</span>
+                    
                     <span v-if="item.use_product_sheet" >用料</span>
                     
 
