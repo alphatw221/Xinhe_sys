@@ -1,7 +1,7 @@
 {% extends "layouts/default.html" %}
 
 {% block page %}
-<div class="col-10 main">
+<div class="col-11 main">
 <h1>新增領貨單</h1>
 <div  id="get_product_sheet">
     <table class="table">
@@ -12,15 +12,37 @@
             <option value="{{squad.id}}">{{squad.name}}</option>
             {% endfor %}
         </select></td></tr>
-        <tr><td> <label for="warehouse" >倉庫:</label></td><td><select name="warehouse" id="warehouse" v-model="get_product_sheet_data.warehouse" >
-        </select></td></tr>
+        <tr>
+            <td> 
+                <label for="warehouse" >倉庫:</label>
+            </td>
+            <td>
+                <select  v-model="get_product_sheet_data.warehouse" >
+                    <option v-for="item in warehouses" :value="item.id" v-html="item.name"></option>
+                </select>
+            </td>
+        </tr>
         <tr><td><label for="date">日期:</label></td><td><input type="date" name="date" v-model="get_product_sheet_data.date"></td></tr>
-
+        <tr><td><label for="squad">出料公司:</label></td><td><select name="squad"  v-model="out_squad" v-on:change="update_out_warehouse">
+            {% for squad in squads %}
+            <option value="{{squad.id}}">{{squad.name}}</option>
+            {% endfor %}
+        </select></td></tr>
+        <tr>
+            <td> 
+                <label for="warehouse" >出料倉庫:</label>
+            </td>
+            <td>
+                <select  v-model="out_warehouse" >
+                    <option v-for="item in out_warehouses" :value="item.id" v-html="item.name"></option>
+                </select>
+            </td>
+        </tr>
         <tr><td colspan="2"><button class="btn btn-secondary" v-on:click="new_products">新增批料</button></td></tr>
         
         <tr><td colspan="2"><div id="productss_div"></div></td></tr>
         </table>
-        <button class="btn btn-primary" v-on:click="export_pdf">輸出pdf</button>
+       <input type="checkbox" v-model="export_check"> <label >匯出excel</label><br>
         <button class="btn btn-success" v-on:click="submit">送出</button>
 
 
@@ -37,4 +59,5 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="/static/js/get_product_page.js"></script>
+<script lang="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 {% endblock page %}

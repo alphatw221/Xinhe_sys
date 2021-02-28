@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
+import datetime
 
 # Create your models here.
 class Squad(models.Model):
@@ -21,6 +22,7 @@ class Warehouse(models.Model):
     name=models.CharField(unique=True,max_length=30)
     location=models.CharField(blank=True,null=True,max_length=30)
     squad=models.ForeignKey('Squad',related_name='warehouses',on_delete=models.CASCADE)
+    project=models.ForeignKey('Project',related_name='warehouses',on_delete=models.DO_NOTHING,null=True,blank=True)
 
     def __str__(self):
         return str(self.name)
@@ -60,7 +62,6 @@ class Region(models.Model):
 
 class Project(models.Model):
     name=models.CharField(unique=True,max_length=30)
-
     def __str__(self):
         return str(self.name)
 
@@ -75,6 +76,7 @@ class WorkSheet(models.Model):
     project=models.ForeignKey('Project',related_name='work_sheets',on_delete=models.DO_NOTHING)
     address=models.CharField(max_length=40,blank=True,null=True)
     batch=models.CharField(max_length=20,blank=True,null=True)
+    point=models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.serial_number)
@@ -95,6 +97,7 @@ class UseProductSheet(models.Model):
     date=models.DateField()
     discription=models.TextField(blank=True,null=True)
     status=models.ForeignKey('Status',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
+    point=models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.id)
@@ -113,9 +116,11 @@ class GetProductSheetProducts(models.Model):
 
     product=models.ForeignKey('Product',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
     amount=models.IntegerField()
-    get_product_sheet=models.ForeignKey('GetProductSheet',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
-    warehouse=models.ForeignKey('Warehouse',related_name='get_product_sheet_productss',on_delete=models.DO_NOTHING)
-    
+    get_product_sheet=models.ForeignKey('GetProductSheet',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
+    warehouse=models.ForeignKey('Warehouse',related_name='get_product_sheet_productss',on_delete=models.CASCADE)
+    date=models.DateField()
+    out_warehouse=models.ForeignKey('Warehouse',related_name='out_productss',on_delete=models.CASCADE,null=True,blank=True,default=None)
+
     def __str__(self):
         return str(self.id)
 
@@ -125,6 +130,7 @@ class UseProductSheetProducts(models.Model):
     amount=models.IntegerField()
     use_product_sheet=models.ForeignKey('UseProductSheet',related_name='use_product_sheet_productss',on_delete=models.DO_NOTHING)
     warehouse=models.ForeignKey('Warehouse',related_name='use_product_sheet_productss',on_delete=models.DO_NOTHING)
+    date=models.DateField()
     
     def __str__(self):
         return str(self.id)

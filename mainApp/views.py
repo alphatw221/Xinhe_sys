@@ -19,7 +19,8 @@ from rest_framework.authtoken.models import Token
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import os 
 from django.conf import settings
-
+import json
+from django.db.models import Avg, Max, Min, Sum
 class TwentyPagenation(PageNumberPagination):
         page_size = 20
         page_size_query_param = 'size'  
@@ -135,6 +136,17 @@ def update_worksheet_page(request,id):
     'projects':Project.objects.all()}
     return render(request,'pages/update_worksheet_page.html',context)
 
+def warehouse_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={
+    'squads':Squad.objects.all(),
+    'Workers':Worker.objects.all()}
+    return render(request,'pages/warehouse_page.html',context)
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -314,14 +326,36 @@ class GetProductSheetList(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        serializer=GetProductSheetSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        print(serializer.errors)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer1=GetProductSheetSerializer(data=request.data['get_product_sheet'])
+        productss=request.data['get_product_sheet_productss']
+        
+        if serializer1.is_valid() :
+            serializer1.save()
+            for products in productss:
+                products['get_product_sheet']=serializer1.data['id']
+                products['date']=serializer1.data['date']
+                products['out_warehouse']=request.data['out_warehouse']
+            serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
+            if serializer2.is_valid():
+                serializer2.save()
+                sheet_excel={'serial_number':serializer1.data['serial_number'],
+                'squad':Squad.objects.get(id=serializer1.data['squad']).name,
+                'warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']).name,
+                'date':serializer1.data['date'], }
+                productss_excel=[]
+                for products in productss:
+                    product=Product.objects.get(id=products['product'])
+                    productss_excel.append({'code':product.code,
+                    'name':product.name,
+                    'amount':products['amount'],
+                    'unit':product.unit,})
+                content={'s':1,'message':'新增成功','data':{'get_product_sheet':sheet_excel,'get_product_sheet_productss':productss_excel}}
+                return Response(content)
+            print(serializer2.errors)
+            GetProductSheet.objects.get(id=serializer1.data['id']).delete()
+            return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
+        print(serializer1.errors)
+        return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class GetProductSheetDetails(APIView):
 
@@ -422,14 +456,28 @@ class UseProductSheetList(APIView):
         return Response(serializer.data)
 
     def post(self,request):
-        serializer=UseProductSheetSerializer(data=request.data)
-        print(request.data)
-        if serializer.is_valid():
-            serializer.save()
-            content={'s':1,'message':'新增成功','data':serializer.data}
-            return Response(content)
-        print(serializer.errors)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer1=UseProductSheetSerializer(data=request.data['use_product_sheet'])
+        productss=request.data['use_product_sheet_productss']
+        
+        if serializer1.is_valid() :
+            serializer1.save()
+            for products in productss:
+                products['use_product_sheet']=serializer1.data['id']
+                products['date']=serializer1.data['date']
+            serializer2=UseProductSheetProductsSerializer(data=productss,many=True)
+            if serializer2.is_valid():
+                serializer2.save()
+                #改工作聯單狀態
+                worksheet=WorkSheet.objects.get(id=request.data['use_product_sheet']['worksheet'])
+                worksheet.status=Status.objects.get(id=request.data['use_product_sheet']['status'])
+                worksheet.save()
+                content={'s':1,'message':'新增成功','data':{'use_product_sheet':serializer1.data,'use_product_sheet_productss':serializer2.data}}
+                return Response(content)
+            print(serializer2.errors)
+            UseProductSheet.objects.get(id=serializer1.data['id']).delete()
+            return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
+        print(serializer1.errors)
+        return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UseProductSheetDetails(APIView):
 
@@ -742,23 +790,31 @@ class GetSquadWarehouses(APIView):
         serializer=WarehouseSerializer(warehouses,many=True)
         return Response(serializer.data)
 
-class GetSquadWorkSheet(APIView):
-
+class GetWorksheetWithSerialNumber(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
-
-    def get(self,request,id):
-        squad=Squad.objects.get(id=id)
-        work_sheets=squad.work_sheets.all()
-        serializer=WorkSheetSerializer(work_sheets,many=True)
-        return Response(serializer.data)
-
+    def get(self,request):
+        try:
+            data={}
+            serial_number=request.query_params.get('serial_number')
+            worksheet=WorkSheet.objects.get(serial_number=serial_number)
+            data['worksheet_id']=worksheet.id
+            data['squad_id']=worksheet.squad.id
+            data['squad_name']=worksheet.squad.name
+            data['warehouse_id']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id
+            data['warehouse_name']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].name
+            data['point']=int(worksheet.point)
+            return Response(data)
+        except:
+            return Response()
 class GetAllDict(APIView):
 
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
 
     def get(self,request):
+
+
         squads=Squad.objects.all()
         squad_dict={}
         i=0
@@ -862,3 +918,106 @@ class SearchWorksheet(APIView):
         page_worksheets=twentyPagenation.paginate_queryset(queryset=worksheets,request=request,view=self)
         serializer=WorkSheetSerializer(page_worksheets,many=True)
         return Response(serializer.data)
+
+class GetWarehouseInOut(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        squad=Squad.objects.get(id=request.data['squad'])
+        data={}
+        inout={}
+        total={}
+        data['product_dict']=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
+        data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in GetProductSheet.objects.all())
+        data['use_product_sheet_dict']=dict((x.pk,UseProductSheetSerializer(x).data) for x in squad.use_product_sheets.all())
+
+        # try:
+        #     products_id=request.data['ids']
+        #     warehouse=Warehouse.objects.get(id=id)
+        #     for product_id in products_id:
+        #         get_productss=warehouse.get_product_sheet_productss.filter(product=product_id)
+        #         get_productss_total=get_productss.aggregate(Sum('amount'))
+        #         use_productss=warehouse.use_product_sheet_productss.filter(product=product_id)
+        #         use_productss_total=use_productss.aggregate(Sum('amount'))
+        #         out_productss=warehouse.out_productss.filter(product=product_id)
+        #         out_productss_total=out_productss.aggregate(Sum('amount'))
+        #         inout[product_id]=self.merge(get_productss,use_productss,out_productss)
+        #         total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
+        #     data['inout']=inout
+        #     data['total']=total
+        #     return Response(data)
+        # except:
+        #     return Response('輸入資料錯誤',status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        products_id=request.data['ids']
+        warehouse=Warehouse.objects.get(id=id)
+        for product_id in products_id:
+            get_productss=warehouse.get_product_sheet_productss.filter(product=product_id).order_by('date')
+            get_productss_total=get_productss.aggregate(Sum('amount'))
+            use_productss=warehouse.use_product_sheet_productss.filter(product=product_id).order_by('date')
+            use_productss_total=use_productss.aggregate(Sum('amount'))
+            out_productss=warehouse.out_productss.filter(product=product_id).order_by('date')
+            out_productss_total=out_productss.aggregate(Sum('amount'))
+            inout[product_id]=self.merge(get_productss,use_productss,out_productss)
+            total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
+        data['inout']=inout
+        data['total']=total
+        return Response(data)
+    def merge(self,a,b,c):
+        i=0
+        j=0
+        k=0
+        data=[]
+        while(i<len(a) and j<len(b) and k<len(c)):
+            if a[i].date <= b[j].date and a[i].date <= c[k].date:
+                data.append(GetProductSheetProductsSerializer(a[i]).data)
+                i=i+1
+            elif b[j].date <= a[i].date and b[j].date <= c[k].date:
+                data.append(UseProductSheetProductsSerializer(b[j]).data)
+                j=j+1
+            else:
+                data.append(GetProductSheetProductsSerializer(c[k]).data)
+                k=k+1
+        if i == len(a):
+            while(j<len(b) and k<len(c)):
+                if b[j].date <= c[k].date:
+                    data.append(UseProductSheetProductsSerializer(b[j]).data)
+                    j=j+1
+                else:
+                    data.append(GetProductSheetProductsSerializer(c[k]).data)
+                    k=k+1
+            if j==len(b):
+                for x in c[k:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+            else:
+                for x in b[j:len(b)]:
+                    data.append(UseProductSheetProductsSerializer(x).data)
+
+        elif j== len(b):
+            while(i<len(a) and k<len(c)):
+                if a[i].date <= c[k].date:
+                    data.append(GetProductSheetProductsSerializer(a[i]).data)
+                    i=i+1
+                else:
+                    data.append(GetProductSheetProductsSerializer(c[k]).data)
+                    k=k+1
+            if i==len(a):
+                for x in c[k:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+            else:
+                for x in a[i:len(c)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+        elif k==len(c):
+            while(i<len(a) and j<len(b)):
+                if a[i].date <= b[j].date:
+                    data.append(GetProductSheetProductsSerializer(a[i]).data)
+                    i=i+1
+                else:
+                    data.append(UseProductSheetProductsSerializer(b[j]).data)
+                    j=j+1
+            if i==len(a):
+                for x in b[j:len(b)]:
+                    data.append(UseProductSheetProductsSerializer(x).data)
+            else:
+                for x in a[i:len(a)]:
+                    data.append(GetProductSheetProductsSerializer(x).data)
+        return data

@@ -2,7 +2,7 @@
 
 {% block page %}
 
-    <div class="col-10 main">
+    <div class="col-11 main">
 <div  id="worksheet">
     <h1>新增工作聯單</h1>
     <table class="table">
@@ -44,6 +44,7 @@
             <option value="{{project.id}}">{{project.name}}</option>
             {% endfor %}
         </select></td></tr>
+        <tr><td><label for="point">預估點數:</label></td><td><input type="number" name="point" v-model="worksheet_data.point"></td></tr>
         <tr><td><label for="address">地址:</label></td><td><input type="text" name="address" v-model="worksheet_data.address"></td></tr>
         <tr><td><label for="batch">批次:</label></td><td><input type="text" name="batch" v-model="worksheet_data.batch"></td></tr>
 

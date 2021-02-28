@@ -1,27 +1,15 @@
 var worksheet = new Vue({
     el: '#use_product_sheet',
     data: {
-      use_product_sheet_data:{worksheet:null,squad:null,date:null,warehouse:null,discription:null},
+      use_product_sheet_data:{serial_number:null,worksheet:null,status:null,squad:null,date:null,warehouse:null,discription:null,point:null},
       n:1,
-      serial_number:null,
-      products:null,
-      warehouses:null,
-      worksheets:null,
+      squad:'',
+      warehouse:'',
       message:'無 對應聯單資料',
-    },
-    created(){
-        axios.get('/product_list/')
-        .then(res => {
-            this.products=res.data
-        })
-        .catch(err => {
-            console.error(err); 
-        })
     },
     methods:{
         new_products(){
             var n=this.n;
-            var products=this.products;
             div=document.getElementById('productss_div')
             ele1 = document.createElement('input');
             ele1.onkeyup=function(){
@@ -32,13 +20,12 @@ var worksheet = new Vue({
                 e1.innerHTML="材料:--"
                 e2.innerHTML="單位:--"
                 e3.value=null
-                for (i = 0; i < products.length; i++) {
-                  if(input==products[i].code){
-                    e1.innerHTML="材料:"+products[i].name
-                    e2.innerHTML="單位:"+products[i].unit
-                    e3.value=products[i].id
-                  }
-                }
+                axios.get('/get_product_with_code/',{params:{code:input}})
+                .then(res => {
+                    e1.innerHTML="材料:"+res.data.name
+                    e2.innerHTML="單位:"+res.data.unit
+                    e3.value=res.data.id
+                })
             }
             ele2 = document.createElement('input');
             ele3=document.createElement('input');
@@ -93,64 +80,39 @@ var worksheet = new Vue({
             this.n++;
         },
         submit(){
-            var use_product_sheet_id;
-            axios.post('/use_product_sheet_list/',this.use_product_sheet_data)
-            .then(res => {
-                use_product_sheet_id=res.data['data']['id']
-                product_elements=document.getElementsByName('product')
-                amount_elements=document.getElementsByName('amount')
-                var i;
+            product_elements=document.getElementsByName('product')
+            amount_elements=document.getElementsByName('amount')
+            data=[]
                 for (i = 0; i < product_elements.length; i++) {
-                    console.log(product_elements[i].value)
-                    console.log(amount_elements[i].value)
-                    axios.post('/use_product_sheet_products_list/',{product:product_elements[i].value,
-                    amount:amount_elements[i].value,
-                    warehouse:this.use_product_sheet_data.warehouse,
-                    use_product_sheet:use_product_sheet_id,
-                    })
-                    .then(res => {
-                        console.log(res);
-                    })
-                    .catch(err => {
-                        window.alert('批料輸入錯誤')
-                    })
+                    data.push({product:product_elements[i].value,
+                        amount:amount_elements[i].value,
+                        warehouse:this.use_product_sheet_data.warehouse
+                        })
                 }
-                window.alert('完工單新增成功')
-
+            axios.post('/use_product_sheet_list/',{use_product_sheet:this.use_product_sheet_data,use_product_sheet_productss:data})
+            .then(res => {
+                window.alert(res.data['message'])
+                
             })
             .catch(err => {
-                window.alert('完工單新增錯誤')
+                window.alert('領貨單新增錯誤')
             })
-        },
-        update_warehouse_worksheet(){
-            axios.get('/get_squad_warehouses/'+this.use_product_sheet_data.squad)
-            .then(res => {
-                this.warehouses=res.data
-                select=document.getElementById('warehouse')
-                select.innerHTML='';
-                for(i=0;i<this.warehouses.length;i++){
-                    option=document.createElement('option')
-                    option.value=this.warehouses[i].id
-                    option.innerHTML=this.warehouses[i].name
-                    select.appendChild(option)
-                }
-                select.value=null
-            })
-            axios.get('/get_squad_worksheet/'+this.use_product_sheet_data.squad)
-            .then(res => {
-               this.worksheets=res.data
-            })
-            
         },
         search_worksheets(){
-            this.message="無 對應聯單號"
-            this.use_product_sheet_data.worksheet=null
-            for (i = 0; i < this.worksheets.length; i++) {
-                if(this.serial_number==this.worksheets[i].serial_number){
-                  this.message="有 對應聯單號"
-                  this.use_product_sheet_data.worksheet=this.worksheets[i].id
+            axios.get('/get_worksheet_with_serial_number/',{params:{serial_number:this.use_product_sheet_data.serial_number}})
+            .then(res => {
+                if(res.data){
+                    this.message='有 對應聯單資料'
+                }else{
+                    this.message='無 對應聯單資料'
                 }
-              }
+                this.use_product_sheet_data.squad=res.data.squad_id
+                this.squad=res.data.squad_name
+                this.use_product_sheet_data.warehouse=res.data.warehouse_id
+                this.warehouse=res.data.warehouse_name
+                this.use_product_sheet_data.point=res.data.point
+                this.use_product_sheet_data.worksheet=res.data.worksheet_id
+            })
         }
     }
 })

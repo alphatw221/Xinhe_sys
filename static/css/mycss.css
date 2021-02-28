@@ -1,17 +1,18 @@
 .sidenav{
     height: 100%;
-    position: fixed;
+    width: 100%;
+    /* position: fixed;
     z-index: 1;
     top: 0;
-    left: 0;
-    overflow-x: hidden;
+    left: 0; */
+    overflow-x:auto; 
     padding-top: 20px;
     background-color: black;
 }
 .sidenav a{
-    padding: 6px 8px 6px 16px;
+    padding: 6px 8px 6px 0px;
     text-decoration: none;
-    font-size: 20px;
+    /* font-size: 20px; */
     color: #818181;
     display: block;
   }
@@ -28,9 +29,7 @@
 .sidenav button:hover{
     color:#f1f1f1;
 }
-.main{
-    margin-left: 10px;
-}
+
 input{
     border-radius: 5px;
 }
@@ -50,8 +49,10 @@ select{
     margin: auto;
     position: relative;
     top: 20%;
-
-
-
-
+}
+.container-fulid{
+    height: 100%;
+}
+.row{
+    height:100%;
 }
