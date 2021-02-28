@@ -53,6 +53,9 @@ var worksheet = new Vue({
                     console.log(res.data)
                 })
         },
+        show_total_sheet(){
+            window.open('/warehouse_total_page/')
+        }
 
     },
     

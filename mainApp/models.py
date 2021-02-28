@@ -83,7 +83,7 @@ class WorkSheet(models.Model):
 
 class GetProductSheet(models.Model):
 
-    serial_number=models.CharField(unique=True,max_length=30)
+    serial_number=models.CharField(max_length=30)
     squad=models.ForeignKey('Squad',related_name='get_product_sheets',on_delete=models.DO_NOTHING)
     date=models.DateField()
 

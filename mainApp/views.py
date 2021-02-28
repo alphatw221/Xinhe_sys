@@ -147,6 +147,19 @@ def warehouse_page(request):
     'squads':Squad.objects.all(),
     'Workers':Worker.objects.all()}
     return render(request,'pages/warehouse_page.html',context)
+
+def warehouse_total_page(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={
+    'warehouses':Warehouse.objects.all(),
+    'products':Product.objects.all(),}
+    return render(request,'pages/warehouse_total_page.html',context)
+    
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -1004,7 +1017,7 @@ class GetWarehouseInOut(APIView):
                 for x in c[k:len(c)]:
                     data.append(GetProductSheetProductsSerializer(x).data)
             else:
-                for x in a[i:len(c)]:
+                for x in a[i:len(a)]:
                     data.append(GetProductSheetProductsSerializer(x).data)
         elif k==len(c):
             while(i<len(a) and j<len(b)):
@@ -1021,3 +1034,25 @@ class GetWarehouseInOut(APIView):
                 for x in a[i:len(a)]:
                     data.append(GetProductSheetProductsSerializer(x).data)
         return data
+
+class GetAllWarehouseTotal(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+    def get(self,request):
+        products=Product.objects.all()
+        warehouses=Warehouse.objects.all()
+        data={}
+        product2warehouse={}
+        data['product_dict']=dict((x.code, ProductSerializer(x).data) for x in Product.objects.all())
+        data['warehouse_dict']=dict((x.pk, ProductSerializer(x).data) for x in Warehouse.objects.all())
+
+        for product in products:
+            product2warehouse[product.code]={}
+            for warehouse in warehouses:
+                get_productss_total=warehouse.get_product_sheet_productss.filter(product=product.id).aggregate(Sum('amount'))
+                use_productss_total=warehouse.use_product_sheet_productss.filter(product=product.id).aggregate(Sum('amount'))
+                out_productss_total=warehouse.out_productss.filter(product=product.id).aggregate(Sum('amount'))
+                total=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
+                product2warehouse[product.code][warehouse.id]=total
+        data['product2warehouse']=product2warehouse
+        return Response(data)

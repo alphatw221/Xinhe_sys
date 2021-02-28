@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/mycss.css">
+        <title>Xinhe_SYS</title>
+
+        
+    </head>
+    <body style="height: 100%;">
+        
+        
+            <div id="warehouse_total">
+                <div v-if="!IsFetching">
+                    <table v-if="!IsFetching" style="border: 2px solid black; ">
+                        <tr style="border: 2px solid black; ">
+                            <td style="border: 2px solid black; ">
+                                <span>料號:</span>
+                            </td>
+                            <td style="border: 2px solid black; ">
+                                <span>料名:</span>
+                            </td>
+                            <td v-for="warehouse in warehouses" style="border: 2px solid black; ">
+                                <span  v-html="warehouse.name"></span>
+                            </td>
+                        </tr>
+                        <tr v-for=" (item,key) in product2warehouse" style="border: 2px solid black; ">
+                            <td style="border: 2px solid black; ">
+                                <span v-html="products[key].code"></span>
+                            </td>
+                            <td style="border: 2px solid black; ">
+                                <span v-html="products[key].name"></span>
+                            </td>
+                            <td v-for="(x,key) in item" style="border: 2px solid black; ">
+                                <span v-html="x"></span>
+                            </td>
+                        </tr>
+                    </table>
+                    
+
+                </div>
+            </div>
+                <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script> 
+                <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+                <script>
+                    var worksheet = new Vue({
+                        el: '#warehouse_total',
+                        data: {
+                            warehouses:null,
+                            products:null,
+                            product2warehouse:null,
+                            IsFetching:true,
+                        },
+                        created(){
+                            IsFetching=true
+                            axios.get('/get_all_warehouse_total/')
+                            .then(res => {
+                                console.log(res.data)
+                                this.warehouses=res.data.warehouse_dict
+                                this.products=res.data.product_dict
+                                this.product2warehouse=res.data.product2warehouse
+                                this.IsFetching=false
+                            })
+                        },
+                    })
+
+                </script>
+    </body>
+
+    
+
+</html>

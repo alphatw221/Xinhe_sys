@@ -16,7 +16,7 @@
         <select  v-model="warehouse">
                 <option v-for="item in warehouses" :value="item.id" v-html="item.name"></option>
         </select><br>
-       
+        <button v-on:click="show_total_sheet">顯示總存貨表</button><br>
         <button v-on:click="add_product">新增查詢單料</button>
         <div id="products_div" v-for="(product,index) in products">
             <label >料號:</label>
