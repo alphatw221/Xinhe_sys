@@ -8,14 +8,14 @@ import sys
 import site
 from django.core.wsgi import get_wsgi_application
 # Add the site-packages of the chosen virtualenv to work with
-site.addsitedir('C:/users/tnt/appdata/local/programs/python/python38/lib/site-packages')
+site.addsitedir('C:/users/user.desktop-9lvkk76/appdata/local/programs/python/python38/lib/site-packages')
 
 
 
 
 # Add the app's directory to the PYTHONPATH
-sys.path.append('C:/Users/tnt/Desktop/Xinhe_sys')
-sys.path.append('C:/Users/tnt/Desktop/Xinhe_sys/Xinhe_sys')
+sys.path.append('C:/Users/Public/Desktop/Xinhe_sys')
+sys.path.append('C:/Users/Public/Desktop/Xinhe_sys/Xinhe_sys')
 # sys.path.append('C:/Users/tnt/Desktop/Xinhe_sys/templates')
 # sys.path.append('C:/Users/tnt/Desktop/Xinhe_sys/Xinhe_sys')
 # sys.path.append('C:/Users/tnt/Desktop/Xinhe_sys/static')
