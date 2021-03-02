@@ -888,6 +888,24 @@ class GetWorksheetProductss(APIView):
             'unit':work_sheet_productss[i].product.unit})
         return Response(data)
 
+class GetWorksheetUseProductSheet(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request,id):
+        worksheet=WorkSheet.objects.get(id=id)
+        use_product_sheets=worksheet.use_product_sheets.all()
+        data=[]
+        for x in use_product_sheets:
+            data.append({
+                'id':x.id,
+                'date':x.date,
+                'status':x.status.name,
+                'discription':x.discription,
+                'point':x.point,
+            })
+        return Response(data)
+
 class GetProductWithCode(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]

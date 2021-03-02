@@ -60,7 +60,8 @@ urlpatterns = [
 
     #取得工作單的預估廖
     path('get_worksheet_productss/<int:id>',GetWorksheetProductss.as_view()),
-
+    #取得工作單的完工單
+    path('get_worksheet_use_product_sheet/<int:id>',GetWorksheetUseProductSheet.as_view()),
     #用料號取料名
     path('get_product_with_code/',GetProductWithCode.as_view()),
 
@@ -69,6 +70,8 @@ urlpatterns = [
 
     #取得特定倉庫特定材料進銷存明細
     path('get_warehouse_inout/<int:id>',GetWarehouseInOut.as_view()),
-
+    #取得所有倉庫的各項材料存貨
     path('get_all_warehouse_total/',GetAllWarehouseTotal.as_view()),
+
+    #
 ]

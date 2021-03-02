@@ -14,6 +14,8 @@ var worksheet = new Vue({
         page:1,
         paginate_select:20,
         serial_number_input:null,
+        show_id:null,
+        use_product_sheets:null,
     },
     created(){
         this.isFetching=true
@@ -52,6 +54,25 @@ var worksheet = new Vue({
                     location.reload()
                 }) .catch(err => { console.error(err);  })
             }
-        }
+        },
+        show_detail(id){
+            axios.get('/get_worksheet_use_product_sheet/'+id)
+            .then(res => {
+                this.use_product_sheets=res.data
+                if(this.show_id==id){
+                    this.show_id=null
+                    return
+                }   
+                this.show_id=id
+                console.log('ok')
+            }).catch(err => { console.error(err);   })
+            
+        },
+        use_product_sheet_detail(id){
+
+        },
+        use_product_sheet_delete(id){
+
+        },
     }
 })
