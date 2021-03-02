@@ -12,6 +12,7 @@ urlpatterns = [
     path('use_product_sheet_page/',use_product_page),
     path('dashboard_page/',dashboard_page),
     path('update_worksheet_page/<int:id>',update_worksheet_page),
+    path('update_use_product_sheet_page/<int:id>',update_use_product_sheet_page),
     path('warehouse_page/',warehouse_page),
     path('warehouse_total_page/',warehouse_total_page),
 

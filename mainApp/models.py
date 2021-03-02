@@ -98,7 +98,8 @@ class UseProductSheet(models.Model):
     discription=models.TextField(blank=True,null=True)
     status=models.ForeignKey('Status',related_name='use_product_sheets',on_delete=models.DO_NOTHING)
     point=models.IntegerField(default=0)
-
+    warehouse=models.ForeignKey('Warehouse',on_delete=models.CASCADE)
+    
     def __str__(self):
         return str(self.id)
 

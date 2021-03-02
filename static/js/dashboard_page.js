@@ -69,10 +69,14 @@ var worksheet = new Vue({
             
         },
         use_product_sheet_detail(id){
-
+            window.open('/update_use_product_sheet_page/'+id)
         },
-        use_product_sheet_delete(id){
-
+        use_product_sheet_delete(id,index){
+            axios.delete('/use_product_sheet_detail/'+id)
+                .then(res => {
+                    window.alert('刪除成功')
+                    this.use_product_sheets.splice(index,1)
+                }) .catch(err => { console.error(err);  })
         },
     }
 })

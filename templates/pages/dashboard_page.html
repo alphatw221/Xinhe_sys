@@ -139,7 +139,7 @@
                     <button class="btn btn-outline-danger" v-on:click="del(worksheet.id)">刪除</button>
                 </td>
             </tr>
-            <tr v-if="show_id==worksheet.id" v-for="use_product_sheet in use_product_sheets">
+            <tr v-if="show_id==worksheet.id" v-for="(use_product_sheet,index) in use_product_sheets">
                 <td></td>
                 <td >
                     完工單:
@@ -152,7 +152,7 @@
                 <td><span v-html="'點數:'+use_product_sheet.point"></span></td>
                 <td></td><td></td>
                 <td><button class="btn btn-outline-primary" v-on:click="use_product_sheet_detail(use_product_sheet.id)">檢視</button></td>
-                <td><button class="btn btn-outline-danger" v-on:click="use_product_sheet_delete(use_product_sheet.id)">刪除</button></td>
+                <td><button class="btn btn-outline-danger" v-on:click="use_product_sheet_delete(use_product_sheet.id,index)">刪除</button></td>
                 <td></td><td></td><td></td>
             </tr>
         </tbody>
