@@ -1,10 +1,11 @@
 var worksheet = new Vue({
     el: '#get_product_sheet',
     data: {
-      get_product_sheet_data:{serial_number:null,squad:null,date:null,warehouse:null},
+      get_product_sheet_data:{serial_number:"--",squad:null,date:null,warehouse:null},
       n:1,
       warehouses:null,
       export_check:false,
+      gen_check:true,
       out_squad:null,
       out_warehouse:null,
       out_warehouses:null,
@@ -92,7 +93,9 @@ var worksheet = new Vue({
                         warehouse:this.get_product_sheet_data.warehouse
                         })
                 }
-            axios.post('/get_product_sheet_list/',{get_product_sheet:this.get_product_sheet_data,get_product_sheet_productss:data,out_warehouse:this.out_warehouse})
+            axios.post('/get_product_sheet_list/',{get_product_sheet:this.get_product_sheet_data,
+              get_product_sheet_productss:data,out_warehouse:this.out_warehouse,out_squad:this.out_squad,
+            auto_gen:this.gen_check})
             .then(res => {
                 this.export_data=res.data['data']
                 if(this.export_check){
@@ -132,14 +135,35 @@ var worksheet = new Vue({
             excel += '<tr><td>單號</td><td>'+sheet.serial_number+'</td></tr>'
             excel += '<tr><td>工班</td><td>'+sheet.squad+'</td></tr>'
             excel += '<tr><td>倉庫</td><td>'+sheet.warehouse+'</td></tr>'
+            excel += '<tr><td>發料公司</td><td>'+sheet.out_squad+'</td></tr>'
+            excel += '<tr><td>發料倉庫</td><td>'+sheet.out_warehouse+'</td></tr>'
             excel += '<tr><td>日期</td><td>'+sheet.date+'</td></tr>'
-            excel += '<tr><th>料號</th><th>料名</th><th>數量</th><th>單位</th></tr>'
+            excel += '<tr><th>料號</th><th>料名</th> <th></th><th></th> <th>數量</th><th>單位</th></tr>'
+            for (i=0;i<productss.length;i++){
+              excel += '<tr><td>'+productss[i].code+'</td>'
+              excel += '<td>'+productss[i].name+'</td><td></td><td></td>'
+              excel += '<td>'+productss[i].amount+'</td>'
+              excel += '<td>'+productss[i].unit+'</td></tr>'
+            }
+            excel += '<tr><td>發料人簽名:</td><td>___________________</td></tr>'
+            excel += '<tr><td>領料人簽名:</td><td>___________________</td></tr>'
+            excel += '<tr><th>___________________________________________________________________________________________________________________________________</th></tr>'
+            excel += '<tr><th>領料單</th></tr>'
+            excel += '<tr><td>單號</td><td>'+sheet.serial_number+'</td></tr>'
+            excel += '<tr><td>工班</td><td>'+sheet.squad+'</td></tr>'
+            excel += '<tr><td>倉庫</td><td>'+sheet.warehouse+'</td></tr>'
+            excel += '<tr><td>發料公司</td><td>'+sheet.out_squad+'</td></tr>'
+            excel += '<tr><td>發料倉庫</td><td>'+sheet.out_warehouse+'</td></tr>'
+            excel += '<tr><td>日期</td><td>'+sheet.date+'</td></tr>'
+            excel += '<tr><th>料號</th><th>料名</th> <th></th><th></th> <th>數量</th><th>單位</th></tr>'
             for (i=0;i<productss.length;i++){
                 excel += '<tr><td>'+productss[i].code+'</td>'
-                excel += '<td>'+productss[i].name+'</td>'
+                excel += '<td>'+productss[i].name+'</td><td></td><td></td>'
                 excel += '<td>'+productss[i].amount+'</td>'
                 excel += '<td>'+productss[i].unit+'</td></tr>'
             }
+            excel += '<tr><td>發料人簽名:</td><td>___________________</td></tr>'
+            excel += '<tr><td>領料人簽名:</td><td>___________________</td></tr>'
             excel+='</table>'
             var objE = document.createElement('div') // 因爲我們這裏的數據是string格式的,但是js-xlsx需要dom格式,則先新建一個div然後把數據加入到innerHTML中,在傳childNodes[0]即使dom格式的數據
             objE.innerHTML = excel

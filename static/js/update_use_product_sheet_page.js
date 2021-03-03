@@ -22,7 +22,16 @@ var worksheet = new Vue({
             this.products.push({product:null,code:null,name:"--",unit:'--',warehouse:this.use_product_sheet.warehouse,date:this.use_product_sheet.date,use_product_sheet:this.use_product_sheet.id})
         },
         submit(){
-            axios.put('/use_product_sheet_detail/'+this.use_product_sheet.id,{use_product_sheet:this.use_product_sheet,use_product_sheet_productss:this.products})
+            data=[]
+            for(i=0;i<this.products.length;i++){
+                data.push({product:this.products[i].product,
+                    amount:this.products[i].amount,
+                    warehouse:this.use_product_sheet.warehouse,
+                    date:this.use_product_sheet.date,
+                    use_product_sheet:this.use_product_sheet.id,
+                    })
+            }
+            axios.put('/use_product_sheet_detail/'+this.use_product_sheet.id,{use_product_sheet:this.use_product_sheet,use_product_sheet_productss:data})
             .then(res => {
                 window.alert(res.data['message'])
                 location.reload()

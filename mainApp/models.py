@@ -129,7 +129,7 @@ class UseProductSheetProducts(models.Model):
 
     product=models.ForeignKey('Product',related_name='use_product_sheet_productss',on_delete=models.DO_NOTHING)
     amount=models.IntegerField()
-    use_product_sheet=models.ForeignKey('UseProductSheet',related_name='use_product_sheet_productss',on_delete=models.DO_NOTHING)
+    use_product_sheet=models.ForeignKey('UseProductSheet',related_name='use_product_sheet_productss',on_delete=models.CASCADE)
     warehouse=models.ForeignKey('Warehouse',related_name='use_product_sheet_productss',on_delete=models.DO_NOTHING)
     date=models.DateField()
     

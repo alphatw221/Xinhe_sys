@@ -355,18 +355,25 @@ class GetProductSheetList(APIView):
         productss=request.data['get_product_sheet_productss']
         
         if serializer1.is_valid() :
-            serializer1.save()
+            get_product_sheet=GetProductSheet.objects.create(serial_number=request.data['get_product_sheet']['serial_number'],
+            squad=Squad.objects.get(id=request.data['get_product_sheet']['squad']),
+            date=request.data['get_product_sheet']['date'])
+            if request.data['auto_gen']:
+                get_product_sheet.serial_number='GEN'+str(get_product_sheet.id)
+                get_product_sheet.save()
             for products in productss:
-                products['get_product_sheet']=serializer1.data['id']
-                products['date']=serializer1.data['date']
+                products['get_product_sheet']=get_product_sheet.id
+                products['date']=get_product_sheet.date
                 products['out_warehouse']=request.data['out_warehouse']
             serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
             if serializer2.is_valid():
                 serializer2.save()
-                sheet_excel={'serial_number':serializer1.data['serial_number'],
-                'squad':Squad.objects.get(id=serializer1.data['squad']).name,
+                sheet_excel={'serial_number':get_product_sheet.serial_number,
+                'squad':get_product_sheet.squad.name,
                 'warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']).name,
-                'date':serializer1.data['date'], }
+                'date':get_product_sheet.date,
+                'out_squad':Squad.objects.get(id=request.data['out_squad']).name,
+                'out_warehouse':Warehouse.objects.get(id=request.data['out_warehouse']).name}
                 productss_excel=[]
                 for products in productss:
                     product=Product.objects.get(id=products['product'])
@@ -377,7 +384,7 @@ class GetProductSheetList(APIView):
                 content={'s':1,'message':'新增成功','data':{'get_product_sheet':sheet_excel,'get_product_sheet_productss':productss_excel}}
                 return Response(content)
             print(serializer2.errors)
-            GetProductSheet.objects.get(id=serializer1.data['id']).delete()
+            get_product_sheet.delete()
             return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
         print(serializer1.errors)
         return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -522,19 +529,14 @@ class UseProductSheetDetails(APIView):
         
         for x in use_product_sheet.use_product_sheet_productss.all():
             products.append({
-                'date':x.date,
-                'use_product_sheet':x.use_product_sheet.id,
-                'warehouse':x.warehouse.id,
                 'product':x.product.id,
                 'name':x.product.name,
                 'code':x.product.code,
                 'amount':x.amount,
                 'unit':x.product.unit
             })
-        
         data={
                 'use_product_sheet':{
-                
                     'worksheet':use_product_sheet.worksheet.id,
                     'id':use_product_sheet.id,
                     'status':use_product_sheet.status.id,
@@ -556,9 +558,7 @@ class UseProductSheetDetails(APIView):
         serializer=UseProductSheetSerializer(use_product_sheet,data=request.data['use_product_sheet'])
         serializer2=UseProductSheetProductsSerializer(data=request.data['use_product_sheet_productss'],many=True)
         if serializer.is_valid() and serializer2.is_valid():
-            use_product_sheet_productss=use_product_sheet.use_product_sheet_productss.all()
-            for use_product_sheet_products in use_product_sheet_productss:
-                use_product_sheet_productss.delete()
+            use_product_sheet.use_product_sheet_productss.all().delete()
             serializer.save()
             serializer2.save()
             content={'s':1,'message':'更新成功','data':{'use_product_sheet':serializer.data,'use_product_sheet_productss':serializer2.data}}
