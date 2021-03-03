@@ -27,7 +27,7 @@ var worksheet = new Vue({
             .then(res => {
                 this.dict=res.data
                 this.isFetching=false
-                document.onscroll=this.has_next_page
+                document.onscroll=this.next_page
             }).catch(err => { console.error(err);   })
 
         }).catch(err => { console.error(err);   })
