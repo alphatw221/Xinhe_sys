@@ -14,6 +14,8 @@ var worksheet = new Vue({
         page:1,
         paginate_select:20,
         serial_number_input:null,
+        show_id:null,
+        use_product_sheets:null,
         has_next_page:true,
     },
     created(){
@@ -25,7 +27,7 @@ var worksheet = new Vue({
             .then(res => {
                 this.dict=res.data
                 this.isFetching=false
-                document.onscroll=this.next_page
+                document.onscroll=this.has_next_page
             }).catch(err => { console.error(err);   })
 
         }).catch(err => { console.error(err);   })
@@ -68,6 +70,29 @@ var worksheet = new Vue({
                     location.reload()
                 }) .catch(err => { console.error(err);  })
             }
+        },
+        show_detail(id){
+            axios.get('/get_worksheet_use_product_sheet/'+id)
+            .then(res => {
+                this.use_product_sheets=res.data
+                if(this.show_id==id){
+                    this.show_id=null
+                    return
+                }   
+                this.show_id=id
+                console.log('ok')
+            }).catch(err => { console.error(err);   })
+            
+        },
+        use_product_sheet_detail(id){
+            window.open('/update_use_product_sheet_page/'+id)
+        },
+        use_product_sheet_delete(id,index){
+            axios.delete('/use_product_sheet_detail/'+id)
+                .then(res => {
+                    window.alert('刪除成功')
+                    this.use_product_sheets.splice(index,1)
+                }) .catch(err => { console.error(err);  })
         },
     }
 })

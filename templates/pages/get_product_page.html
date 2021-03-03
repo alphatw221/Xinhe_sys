@@ -6,7 +6,7 @@
 <div  id="get_product_sheet">
     <table class="table">
 
-        <tr><td><label for="serial_number">單號:</label></td><td colspan="3"><input type="text" name="serial_number" v-model="get_product_sheet_data.serial_number"></td></tr>
+        <tr><td><label for="serial_number">單號:</label></td><td colspan="3"><input type="text" name="serial_number" v-if="!gen_check" v-model="get_product_sheet_data.serial_number"><input type="checkbox" v-model="gen_check"><label>自動產生單號</label></td></tr>
         <tr><td><label for="squad">工班:</label></td><td><select name="squad" id="" v-model="get_product_sheet_data.squad" v-on:change="update_warehouse">
             {% for squad in squads %}
             <option value="{{squad.id}}">{{squad.name}}</option>

@@ -159,7 +159,19 @@ def warehouse_total_page(request):
     'warehouses':Warehouse.objects.all(),
     'products':Product.objects.all(),}
     return render(request,'pages/warehouse_total_page.html',context)
-    
+
+def update_use_product_sheet_page(request,id):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+    use_product_sheet=UseProductSheet.objects.get(id=id)
+    warehouses=use_product_sheet.squad.warehouses.all()
+    context={
+    'statuss':Status.objects.all(),
+    'warehouses':warehouses}
+    return render(request,'pages/update_use_product_sheet_page.html',context)
 #--------------------------------------api----------------------------------------------------
 
 class Login(APIView):
@@ -343,18 +355,25 @@ class GetProductSheetList(APIView):
         productss=request.data['get_product_sheet_productss']
         
         if serializer1.is_valid() :
-            serializer1.save()
+            get_product_sheet=GetProductSheet.objects.create(serial_number=request.data['get_product_sheet']['serial_number'],
+            squad=Squad.objects.get(id=request.data['get_product_sheet']['squad']),
+            date=request.data['get_product_sheet']['date'])
+            if request.data['auto_gen']:
+                get_product_sheet.serial_number='GEN'+str(get_product_sheet.id)
+                get_product_sheet.save()
             for products in productss:
-                products['get_product_sheet']=serializer1.data['id']
-                products['date']=serializer1.data['date']
+                products['get_product_sheet']=get_product_sheet.id
+                products['date']=get_product_sheet.date
                 products['out_warehouse']=request.data['out_warehouse']
             serializer2=GetProductSheetProductsSerializer(data=productss,many=True)
             if serializer2.is_valid():
                 serializer2.save()
-                sheet_excel={'serial_number':serializer1.data['serial_number'],
-                'squad':Squad.objects.get(id=serializer1.data['squad']).name,
+                sheet_excel={'serial_number':get_product_sheet.serial_number,
+                'squad':get_product_sheet.squad.name,
                 'warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']).name,
-                'date':serializer1.data['date'], }
+                'date':get_product_sheet.date,
+                'out_squad':Squad.objects.get(id=request.data['out_squad']).name,
+                'out_warehouse':Warehouse.objects.get(id=request.data['out_warehouse']).name}
                 productss_excel=[]
                 for products in productss:
                     product=Product.objects.get(id=products['product'])
@@ -365,7 +384,7 @@ class GetProductSheetList(APIView):
                 content={'s':1,'message':'新增成功','data':{'get_product_sheet':sheet_excel,'get_product_sheet_productss':productss_excel}}
                 return Response(content)
             print(serializer2.errors)
-            GetProductSheet.objects.get(id=serializer1.data['id']).delete()
+            get_product_sheet.delete()
             return Response(serializer2.errors,status=status.HTTP_400_BAD_REQUEST)
         print(serializer1.errors)
         return Response(serializer1.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -506,16 +525,46 @@ class UseProductSheetDetails(APIView):
 
     def get(self,request,id):
         use_product_sheet=self.get_object(id)
-        serializer=UseProductSheetSerializer(get_product_sheet)
-        return Response(serializer.data)
+        products=[]
+        
+        for x in use_product_sheet.use_product_sheet_productss.all():
+            products.append({
+                'product':x.product.id,
+                'name':x.product.name,
+                'code':x.product.code,
+                'amount':x.amount,
+                'unit':x.product.unit
+            })
+        data={
+                'use_product_sheet':{
+                    'worksheet':use_product_sheet.worksheet.id,
+                    'id':use_product_sheet.id,
+                    'status':use_product_sheet.status.id,
+                    'status_name':use_product_sheet.status.name,
+                    'serial_number':use_product_sheet.worksheet.serial_number,
+                    'squad_name':use_product_sheet.squad.name,
+                    'squad':use_product_sheet.squad.id,
+                    'date':use_product_sheet.date,
+                    'point':use_product_sheet.point,
+                    'discription':use_product_sheet.discription,
+                    'warehouse':use_product_sheet.warehouse.id,
+                },
+                'products':products 
+            }
+        return Response(data)
 
     def put(self,request,id):
         use_product_sheet=self.get_object(id)
-        serializer=UseProductSheetSerializer(use_product_sheet,data=request.data)
-        if serializer.is_valid():
+        serializer=UseProductSheetSerializer(use_product_sheet,data=request.data['use_product_sheet'])
+        serializer2=UseProductSheetProductsSerializer(data=request.data['use_product_sheet_productss'],many=True)
+        if serializer.is_valid() and serializer2.is_valid():
+            use_product_sheet.use_product_sheet_productss.all().delete()
             serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
+            serializer2.save()
+            content={'s':1,'message':'更新成功','data':{'use_product_sheet':serializer.data,'use_product_sheet_productss':serializer2.data}}
             return Response(content)
+        print(serializer.errors)
+        print(serializer2.errors)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self,request,id):
@@ -886,6 +935,24 @@ class GetWorksheetProductss(APIView):
             'code':work_sheet_productss[i].product.code,
             'amount':work_sheet_productss[i].amount,
             'unit':work_sheet_productss[i].product.unit})
+        return Response(data)
+
+class GetWorksheetUseProductSheet(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request,id):
+        worksheet=WorkSheet.objects.get(id=id)
+        use_product_sheets=worksheet.use_product_sheets.all()
+        data=[]
+        for x in use_product_sheets:
+            data.append({
+                'id':x.id,
+                'date':x.date,
+                'status':x.status.name,
+                'discription':x.discription,
+                'point':x.point,
+            })
         return Response(data)
 
 class GetProductWithCode(APIView):

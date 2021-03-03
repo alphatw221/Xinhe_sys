@@ -97,8 +97,13 @@
                 <td colspan="2"></td>
             </tr>
         </thead>
+<<<<<<< HEAD
         <tbody >
             <tr v-for="worksheet in worksheets" v-if="!isFetching">
+=======
+        <tbody  v-for="worksheet in worksheets" v-if="!isFetching">
+            <tr >
+>>>>>>> c18b58f1a8910f2852a2d0774c6f0efdcc4151a2
                 <td>
                     <span v-html="worksheet.serial_number"></span>
                 </td>
@@ -130,11 +135,30 @@
                     <span v-html="worksheet.date"></span>
                 </td>
                 <td>
+                    <button class="btn btn-outline-primary" v-on:click="show_detail(worksheet.id)">完工單</button>
+                </td>
+                <td>
                     <button class="btn btn-outline-primary" v-on:click="modify(worksheet.id)">修改</button>
                 </td>
                 <td>
                     <button class="btn btn-outline-danger" v-on:click="del(worksheet.id)">刪除</button>
                 </td>
+            </tr>
+            <tr v-if="show_id==worksheet.id" v-for="(use_product_sheet,index) in use_product_sheets">
+                <td></td>
+                <td >
+                    完工單:
+                </td>
+                <td >
+                    <span v-html="'日期:'+use_product_sheet.date"></span>
+                </td>
+                <td><span v-html="'狀態:'+use_product_sheet.status"></span></td>
+                <td><span v-html="'備註:'+use_product_sheet.discription"></span></td>
+                <td><span v-html="'點數:'+use_product_sheet.point"></span></td>
+                <td></td><td></td>
+                <td><button class="btn btn-outline-primary" v-on:click="use_product_sheet_detail(use_product_sheet.id)">檢視</button></td>
+                <td><button class="btn btn-outline-danger" v-on:click="use_product_sheet_delete(use_product_sheet.id,index)">刪除</button></td>
+                <td></td><td></td><td></td>
             </tr>
         </tbody>
         </table>
