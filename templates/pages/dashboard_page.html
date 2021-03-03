@@ -1,11 +1,11 @@
 {% extends "layouts/default.html" %}
 
 {% block page %}
-<div class="col-11 main">
+<div class="col-11 main" v-on:scroll="scrolled">
 <h1>工作單查詢</h1>
-    <div  id="dashboard">
+    <div  id="dashboard" >
     
-    <div class="filter_bar" name="filter_bar">
+    <div class="filter_bar" name="filter_bar" >
         <h3>篩選條件:</h3>
         <label for="serial_number">單號:</label>
         <input type="text" v-model="serial_number_input" v-on:keyup="update_data">
@@ -61,7 +61,7 @@
     </div>
         
     <div >
-        <table class="table table-striped dashboard_table">
+        <table class="table table-striped dashboard_table" >
             <thead>
             <tr>
                 <td>
@@ -97,7 +97,7 @@
                 <td colspan="2"></td>
             </tr>
         </thead>
-        <tbody>
+        <tbody >
             <tr v-for="worksheet in worksheets" v-if="!isFetching">
                 <td>
                     <span v-html="worksheet.serial_number"></span>
