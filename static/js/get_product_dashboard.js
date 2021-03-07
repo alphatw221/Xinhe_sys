@@ -1,5 +1,5 @@
 var worksheet = new Vue({
-    el: '#dashboard',
+    el: '#get_product_dashboard',
     data: {
         isFetching:true,
         worksheets:[],

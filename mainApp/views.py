@@ -85,6 +85,25 @@ def get_product_page(request):
     'squads':Squad.objects.all(),}
     return render(request,'pages/get_product_page.html',context)
 
+def get_product_dashboard(request):
+    key=request.COOKIES.get('token')
+    try:
+        token=Token.objects.get(key=key)
+    except Token.DoesNotExist:
+        return render(request,'login_page.html')
+
+    context={'products':Product.objects.all(),
+    'squads':Squad.objects.all(),
+    'Workers':Worker.objects.all(),
+    'warehouses':Warehouse.objects.all(),
+    'worksheets':WorkSheet.objects.all(),
+    'type1s':Type1.objects.all(),
+    'type2s':Type2.objects.all(),
+    'statuss':Status.objects.all(),
+    'regions':Region.objects.all(),
+    'projects':Project.objects.all()}
+    return render(request,'pages/get_product_dashboard.html',context)
+
 def use_product_page(request):
     key=request.COOKIES.get('token')
     try:
