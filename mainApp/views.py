@@ -372,11 +372,12 @@ class GetProductSheetList(APIView):
     def post(self,request):
         serializer1=GetProductSheetSerializer(data=request.data['get_product_sheet'])
         productss=request.data['get_product_sheet_productss']
-        
         if serializer1.is_valid() :
             get_product_sheet=GetProductSheet.objects.create(serial_number=request.data['get_product_sheet']['serial_number'],
             squad=Squad.objects.get(id=request.data['get_product_sheet']['squad']),
-            date=request.data['get_product_sheet']['date'])
+            date=request.data['get_product_sheet']['date'],
+            warehouse=Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']),
+            out_warehouse=Warehouse.objects.get(id=request.data['out_warehouse']))
             if request.data['auto_gen']:
                 get_product_sheet.serial_number='GEN'+str(get_product_sheet.id)
                 get_product_sheet.save()
@@ -956,6 +957,22 @@ class GetWorksheetProductss(APIView):
             'unit':work_sheet_productss[i].product.unit})
         return Response(data)
 
+class GetGetProductSheetProductss(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+
+    def get(self,request,id):
+        get_product_sheet=GetProductSheet.objects.get(id=id)
+        get_product_sheet_productss=get_product_sheet.get_product_sheet_productss.all()
+        data=[]
+        for i in range(len(get_product_sheet_productss)):
+            data.append({'product':get_product_sheet_productss[i].product.id,
+            'name':get_product_sheet_productss[i].product.name,
+            'code':get_product_sheet_productss[i].product.code,
+            'amount':get_product_sheet_productss[i].amount,
+            'unit':get_product_sheet_productss[i].product.unit})
+        return Response(data)
+
 class GetWorksheetUseProductSheet(APIView):
     authentication_classes=[TokenAuthentication]
     premission_classes=[IsAuthenticated]
@@ -1017,6 +1034,32 @@ class SearchWorksheet(APIView):
         page_worksheets=twentyPagenation.paginate_queryset(queryset=worksheets,request=request,view=self)
         serializer=WorkSheetSerializer(page_worksheets,many=True)
         return Response(serializer.data)
+
+class SearchGetProductSheet(APIView):
+    authentication_classes=[TokenAuthentication]
+    premission_classes=[IsAuthenticated]
+    def get(self,request):
+        get_product_sheet=GetProductSheet.objects.all().order_by('date')
+        print(get_product_sheet)
+        serial_number=request.query_params.get('serial_number')
+        squad=request.query_params.get('squad')
+        date=request.query_params.get('date')
+        warehouse=request.query_params.get('warehouse')
+        if serial_number:
+            get_product_sheet=get_product_sheet.filter(serial_number=serial_number)
+        if  squad != '0':
+            get_product_sheet=get_product_sheet.filter(squad=squad)
+        if date :
+            get_product_sheet=get_product_sheet.filter(date=date)
+        if warehouse !='0':
+            get_product_sheet=get_product_sheet.filter(warehouse=warehouse)
+        twentyPagenation=TwentyPagenation()
+        page_get_product_sheet=twentyPagenation.paginate_queryset(queryset=get_product_sheet,request=request,view=self)
+        serializer=GetProductSheetSerializer(page_get_product_sheet,many=True)
+        dict_data={}
+        dict_data['warehouse_dict']=dict((x.pk, WarehouseSerializer(x).data) for x in Warehouse.objects.all())
+        dict_data['squad_dict']=dict((x.pk, SquadSerializer(x).data) for x in Squad.objects.all())
+        return Response({'data':serializer.data,'dict_data':dict_data})
 
 class GetWarehouseInOut(APIView):
     authentication_classes=[TokenAuthentication]
@@ -1130,7 +1173,7 @@ class GetAllWarehouseTotal(APIView):
         data={}
         product2warehouse={}
         data['product_dict']=dict((x.code, ProductSerializer(x).data) for x in Product.objects.all())
-        data['warehouse_dict']=dict((x.pk, ProductSerializer(x).data) for x in Warehouse.objects.all())
+        data['warehouse_dict']=dict((x.pk, WarehouseSerializer(x).data) for x in Warehouse.objects.all())
 
         for product in products:
             product2warehouse[product.code]={}

@@ -9,7 +9,7 @@ urlpatterns = [
     path('control_panel/',control_panel),
     path('worksheet_page/',worksheet_page),
     path('get_product_sheet_page/',get_product_page),
-    path('get_product_dashboard/'get_product_dashboard),
+    path('get_product_dashboard/',get_product_dashboard),
     path('use_product_sheet_page/',use_product_page),
     path('dashboard_page/',dashboard_page),
     path('update_worksheet_page/<int:id>',update_worksheet_page),
@@ -64,11 +64,16 @@ urlpatterns = [
     path('get_worksheet_productss/<int:id>',GetWorksheetProductss.as_view()),
     #取得工作單的完工單
     path('get_worksheet_use_product_sheet/<int:id>',GetWorksheetUseProductSheet.as_view()),
+    #取得用料單的批料
+    path('get_get_product_sheet_productss/<int:id>',GetGetProductSheetProductss.as_view()),
+
     #用料號取料名
     path('get_product_with_code/',GetProductWithCode.as_view()),
 
     #工作單篩選
     path('search_worksheet/',SearchWorksheet.as_view()),
+    #領料單篩選
+    path('search_get_product_sheet/',SearchGetProductSheet.as_view()),
 
     #取得特定倉庫特定材料進銷存明細
     path('get_warehouse_inout/<int:id>',GetWarehouseInOut.as_view()),

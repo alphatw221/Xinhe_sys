@@ -86,6 +86,8 @@ class GetProductSheet(models.Model):
     serial_number=models.CharField(max_length=30)
     squad=models.ForeignKey('Squad',related_name='get_product_sheets',on_delete=models.DO_NOTHING)
     date=models.DateField()
+    warehouse=models.ForeignKey('Warehouse',related_name="get_product_sheets",on_delete=models.CASCADE)
+    out_warehouse=models.ForeignKey('Warehouse',related_name="out_product_sheets",on_delete=models.CASCADE,null=True,blank=True,default=None)
 
     def __str__(self):
         return str(self.id)

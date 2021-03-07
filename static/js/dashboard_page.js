@@ -17,6 +17,7 @@ var worksheet = new Vue({
         show_id:null,
         use_product_sheets:null,
         has_next_page:true,
+        productss:null,
     },
     created(){
         this.isFetching=true
@@ -82,7 +83,6 @@ var worksheet = new Vue({
                 this.show_id=id
                 console.log('ok')
             }).catch(err => { console.error(err);   })
-            
         },
         use_product_sheet_detail(id){
             window.open('/update_use_product_sheet_page/'+id)

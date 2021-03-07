@@ -2,7 +2,7 @@
 
 {% block page %}
 <div class="col-11 main" v-on:scroll="scrolled">
-<h1>工作單查詢</h1>
+<h1>領料單查詢</h1>
     <div  id="get_product_dashboard" >
     
     <div class="filter_bar" name="filter_bar" >
@@ -10,47 +10,19 @@
         <label for="serial_number">單號:</label>
         <input type="text" v-model="serial_number_input" v-on:keyup="update_data">
         <label for="squad">工班:</label>
-        <select name="squad" v-model="squad_select" v-on:change="update_data">
+        <select name="squad" v-model="squad_select" v-on:change="update_warehouse">
             <option value="0" >全部</option>
             {% for squad in squads %}
             <option value="{{squad.id}}">{{squad.name}}</option>
             {% endfor %}
         </select>
-        <label for="status">狀態:</label>
-        <select name="status" v-model="status_select" v-on:change="update_data">
-            <option value="0" >全部</option>
-            {% for status in statuss %}
-            <option value="{{status.id}}">{{status.name}}</option>
-            {% endfor %}
+        <label for="warehouse">倉庫:</label>
+        <select name="warehouses" v-on:change="update_data" v-model="warehouse_select">
+            <option value="0">全部</option>
+            <option v-for="item in warehouses" :value="item.id" v-html="item.name"></option>
         </select>
-        <label for="type1">類別1:</label>
-        <select name="type1" v-model="type1_select" v-on:change="update_data">
-            <option value="0" >全部</option>
-            {% for type1 in type1s %}
-            <option value="{{type1.id}}">{{type1.name}}</option>
-            {% endfor %}
-        </select>
-        <label for="type2">類別2:</label>
-        <select name="type2" v-model="type2_select"  v-on:change="update_data">
-            <option value="0" >全部</option>
-            {% for type2 in type2s %}
-            <option value="{{type2.id}}">{{type2.name}}</option>
-            {% endfor %}
-        </select>
-        <label for="region">區域:</label>
-        <select name="region" v-model="region_select"  v-on:change="update_data">
-            <option value="0" >全部</option>
-            {% for region in regions %}
-            <option value="{{region.id}}">{{region.name}}</option>
-            {% endfor %}
-        </select>
-        <label for="project">工程:</label>
-        <select name="project" v-model="project_select"  v-on:change="update_data">
-            <option value="0" >全部</option>
-            {% for project in projects %}
-            <option value="{{project.id}}">{{project.name}}</option>
-            {% endfor %}
-        </select>
+        <label for="date">日期:</label>
+        <input type="date" v-model="date_select" v-on:change="update_data">
         <label for="paginate">單頁資料數:</label>
         <select name="paginate" v-model="paginate_select"  v-on:change="update_data">
             <option value="20">20</option>
@@ -65,95 +37,66 @@
             <thead>
             <tr>
                 <td>
-                    <span>聯單號:</span>
+                    <span>領料單號:</span>
                 </td>
                 <td>
-                    <span>工班:</span>
+                    <span>領料工班:</span>
                 </td>
                 <td>
-                    <span>狀態:</span>
+                    <span>領料倉庫:</span>
                 </td>
                 <td>
-                    <span>類別1:</span>
-                </td>
-                <td>
-                    <span>類別2:</span>
-                </td>
-                <td>
-                    <span>區號:</span>
-                </td>
-                <td>
-                    <span>工程:</span>
-                </td>
-                <td>
-                    <span>地址:</span>
-                </td>
-                <td>
-                    <span>批次:</span>
+                    <span>出料倉庫:</span>
                 </td>
                 <td>
                     <span>日期:</span>
                 </td>
+               
                 <td colspan="2"></td>
             </tr>
         </thead>
-        <tbody  v-for="worksheet in worksheets" v-if="!isFetching">
+        <tbody  v-for="get_product_sheet in get_product_sheets" v-if="!isFetching">
             <tr >
                 <td>
-                    <span v-html="worksheet.serial_number"></span>
+                    <span v-html="get_product_sheet.serial_number"></span>
                 </td>
                 <td>
-                    <span v-html="dict.squad_dict[worksheet.squad]"></span>
+                    <span v-html="dict.squad_dict[get_product_sheet.squad].name"></span>
                 </td>
                 <td>
-                    <span v-html="dict.status_dict[worksheet.status]"></span>
+                    <span v-html="dict.warehouse_dict[get_product_sheet.warehouse].name"></span>
                 </td>
                 <td>
-                    <span v-html="dict.type1_dict[worksheet.type1]"></span>
+                    <span v-html="dict.warehouse_dict[get_product_sheet.out_warehouse].name"></span>
                 </td>
                 <td>
-                    <span v-html="dict.type2_dict[worksheet.type2]"></span>
+                    <span v-html="get_product_sheet.date"></span>
                 </td>
                 <td>
-                    <span v-html="dict.region_dict[worksheet.region]"></span>
+                    <button class="btn btn-outline-primary" v-on:click="show_detail(get_product_sheet.id)">檢視</button>
                 </td>
+                <!-- <td>
+                    <button class="btn btn-outline-primary" v-on:click="modify(get_product_sheet.id)">修改</button>
+                </td> -->
                 <td>
-                    <span v-html="dict.project_dict[worksheet.project]"></span>
-                </td>
-                <td>
-                    <span v-html="worksheet.address"></span>
-                </td>
-                <td>
-                    <span v-html="worksheet.batch"></span>
-                </td>
-                <td>
-                    <span v-html="worksheet.date"></span>
-                </td>
-                <td>
-                    <button class="btn btn-outline-primary" v-on:click="show_detail(worksheet.id)">完工單</button>
-                </td>
-                <td>
-                    <button class="btn btn-outline-primary" v-on:click="modify(worksheet.id)">修改</button>
-                </td>
-                <td>
-                    <button class="btn btn-outline-danger" v-on:click="del(worksheet.id)">刪除</button>
+                    <button class="btn btn-outline-danger" v-on:click="del(get_product_sheet.id)">刪除</button>
                 </td>
             </tr>
-            <tr v-if="show_id==worksheet.id" v-for="(use_product_sheet,index) in use_product_sheets">
+            <tr v-if="show_id==get_product_sheet.id" v-for="products in productss" >
                 <td></td>
-                <td >
-                    完工單:
+                <td>
+                    <span v-html="'料名:'+products.name"></span>
                 </td>
-                <td >
-                    <span v-html="'日期:'+use_product_sheet.date"></span>
+                <td>
+                    <span v-html="'料號:'+products.code"></span>
                 </td>
-                <td><span v-html="'狀態:'+use_product_sheet.status"></span></td>
-                <td><span v-html="'備註:'+use_product_sheet.discription"></span></td>
-                <td><span v-html="'點數:'+use_product_sheet.point"></span></td>
+                <td>
+                    <span v-html="'數量:'+products.amount"></span>
+                </td>
+                <td>
+                    <span v-html="'單位:'+products.unit"></span>
+                </td>
                 <td></td><td></td>
-                <td><button class="btn btn-outline-primary" v-on:click="use_product_sheet_detail(use_product_sheet.id)">檢視</button></td>
-                <td><button class="btn btn-outline-danger" v-on:click="use_product_sheet_delete(use_product_sheet.id,index)">刪除</button></td>
-                <td></td><td></td><td></td>
             </tr>
         </tbody>
         </table>
