@@ -59,7 +59,7 @@ var worksheet = new Vue({
             }
         },
         modify(id){
-            window.open('/update_worksheet_page/'+id)
+            window.open('/update_get_product_sheet_page/'+id)
         },
         del(id){
             result=window.confirm('確定刪除?')

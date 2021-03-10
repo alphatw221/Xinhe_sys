@@ -14,6 +14,7 @@ urlpatterns = [
     path('dashboard_page/',dashboard_page),
     path('update_worksheet_page/<int:id>',update_worksheet_page),
     path('update_use_product_sheet_page/<int:id>',update_use_product_sheet_page),
+    path('update_get_product_sheet_page/<int:id>',update_get_product_sheet_page),
     path('warehouse_page/',warehouse_page),
     path('warehouse_total_page/',warehouse_total_page),
     
@@ -24,20 +25,20 @@ urlpatterns = [
     #工作單 工作批料
     path('worksheet_list/',WorkSheetList.as_view()),  #同時新增工作單以及多個批料
     path('worksheet_detail/<int:id>',WorkSheetDetails.as_view()), #同時修改工作單以及多個批料
-    path('worksheet_products_list/',WorkSheetProductsList.as_view()),  #一次新增多個
-    path('worksheet_products_detail/<int:id>',WorkSheetProductsDetails.as_view()),
+    # path('worksheet_products_list/',WorkSheetProductsList.as_view()),  #一次新增多個
+    # path('worksheet_products_detail/<int:id>',WorkSheetProductsDetails.as_view()),
 
     #領貨單 領貨批料
     path('get_product_sheet_list/',GetProductSheetList.as_view()), #同時新增領貨單以及多個批料
     path('get_product_sheet_detail/<int:id>',GetProductSheetDetails.as_view()),
-    path('get_product_sheet_products_list/',GetProductSheetProductsList.as_view()),
-    path('get_product_sheet_products_detail/<int:id>',GetProductSheetProductsDetails.as_view()),
+    # path('get_product_sheet_products_list/',GetProductSheetProductsList.as_view()),
+    # path('get_product_sheet_products_detail/<int:id>',GetProductSheetProductsDetails.as_view()),
 
     #完工單 完工批料
     path('use_product_sheet_list/',UseProductSheetList.as_view()), #同時新增完工單以及多個批料
     path('use_product_sheet_detail/<int:id>',UseProductSheetDetails.as_view()),
-    path('use_product_sheet_products_list/',UseProductSheetProductsList.as_view()),
-    path('use_product_sheet_products_detail/<int:id>',UseProductSheetProductsDetails.as_view()),
+    # path('use_product_sheet_products_list/',UseProductSheetProductsList.as_view()),
+    # path('use_product_sheet_products_detail/<int:id>',UseProductSheetProductsDetails.as_view()),
 
     path('product_list/',ProductList.as_view()),
     path('product_detail/<int:id>',ProductDetails.as_view()),
