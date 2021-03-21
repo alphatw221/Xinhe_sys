@@ -1,10 +1,11 @@
 var worksheet = new Vue({
     el: '#use_product_sheet',
     data: {
-      use_product_sheet_data:{serial_number:null,worksheet:null,status:null,squad:null,date:null,warehouse:null,discription:null,point:null},
+      use_product_sheet_data:{serial_number:null,worksheet:null,status:null,squad:null,date:null,warehouse:null,discription:null,point:null,project:null},
       n:1,
       squad:'',
-      warehouse:'',
+      project:'',
+      warehouses:[],
       message:'無 對應聯單資料',
     },
     methods:{
@@ -108,10 +109,11 @@ var worksheet = new Vue({
                 }
                 this.use_product_sheet_data.squad=res.data.squad_id
                 this.squad=res.data.squad_name
-                this.use_product_sheet_data.warehouse=res.data.warehouse_id
-                this.warehouse=res.data.warehouse_name
+                this.warehouses=res.data.warehouses
                 this.use_product_sheet_data.point=res.data.point
                 this.use_product_sheet_data.worksheet=res.data.worksheet_id
+                this.use_product_sheet_data.project=res.data.project_id
+                this.project=res.data.project_name
             })
         }
     }

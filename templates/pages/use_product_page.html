@@ -14,10 +14,23 @@
             <input type="text" v-model="squad" readonly >
         </td></tr>
 
-        <tr><td><label for="warehouse" >倉庫:</label></td><td>
-            <input type="text" v-model="warehouse" readonly>
-        </td></tr>
-
+    
+        <tr>
+            <td> 
+                <label for="warehouse" >倉庫:</label>
+            </td>
+            <td>
+                <select  v-model="use_product_sheet_data.warehouse" >
+                    <option v-for="item in warehouses" :value="item.id" v-html="item.name"></option>
+                </select>
+            </td>
+        </tr>
+        
+        <tr><td><label for="project">工程:</label></td
+            ><td>
+                <input type="text" name="project" v-model="project" readonly>
+            </td>
+        </tr>
         
         
         <tr><td><label for="point">點數:</label></td

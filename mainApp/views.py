@@ -531,6 +531,8 @@ class UseProductSheetDetails(APIView):
                     'point':use_product_sheet.point,
                     'discription':use_product_sheet.discription,
                     'warehouse':use_product_sheet.warehouse.id,
+                    'project':use_product_sheet.project.id,
+                    'project_name':use_product_sheet.project.name,
                 },
                 'products':products 
             }
@@ -788,13 +790,16 @@ class GetWorksheetWithSerialNumber(APIView):
         try:
             data={}
             serial_number=request.query_params.get('serial_number')
+            print(serial_number)
             worksheet=WorkSheet.objects.get(serial_number=serial_number)
+            print(worksheet)
             data['worksheet_id']=worksheet.id
             data['squad_id']=worksheet.squad.id
             data['squad_name']=worksheet.squad.name
-            data['warehouse_id']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].id
-            data['warehouse_name']=(worksheet.project.warehouses.filter(squad=worksheet.squad.id))[0].name
+            data['warehouses']=WarehouseSerializer(worksheet.squad.warehouses,many=True).data
             data['point']=int(worksheet.point)
+            data['project_id']=worksheet.project.id
+            data['project_name']=worksheet.project.name
             return Response(data)
         except:
             return Response()
@@ -981,7 +986,7 @@ class GetWarehouseInOut(APIView):
         data['product_dict']=dict((x.pk, ProductSerializer(x).data) for x in Product.objects.all())
         data['get_product_sheet_dict']=dict((x.pk,GetProductSheetSerializer(x).data) for x in GetProductSheet.objects.all())
         data['use_product_sheet_dict']=dict((x.pk,UseProductSheetSerializer(x).data) for x in squad.use_product_sheets.all())
-
+        data['warehouse_dict']=dict((x.pk, x.squad.name) for x in Warehouse.objects.all())
         # try:
         #     products_id=request.data['ids']
         #     warehouse=Warehouse.objects.get(id=id)

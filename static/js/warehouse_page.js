@@ -10,6 +10,7 @@ var worksheet = new Vue({
         product_dict:null,
         get_product_sheet_dict:null,
         use_product_sheet_dict:null,
+        warehouse_dict:null,
         products_inout:{},
         total:{},
 
@@ -48,6 +49,7 @@ var worksheet = new Vue({
                     this.product_dict=res.data.product_dict
                     this.get_product_sheet_dict=res.data.get_product_sheet_dict
                     this.use_product_sheet_dict=res.data.use_product_sheet_dict
+                    this.warehouse_dict=res.data.warehouse_dict
                     this.products_inout=res.data.inout
                     this.total=res.data.total
                     console.log(res.data)
