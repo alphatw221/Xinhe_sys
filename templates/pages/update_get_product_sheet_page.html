@@ -4,24 +4,46 @@
     <div class="col-11 main">
     
         <div  id="update_get_product_sheet">
-            <h1>檢視完工用料單</h1>
+            <h1>檢視領料單</h1>
             <table class="table" v-if="!isFetching">
         
                 <tr><td><label for="serial_number">單號:</label></td><td><span v-html="get_product_sheet.serial_number"></span></td></tr>
         
         
-                <tr><td><label for="squad">工班:</label></td><td><span v-html="get_product_sheet.squad_name"></span></td></tr>
-        
-                <tr><td></td></tr>
+                <tr><td><label for="squad">工班:</label></td><td><select name="squad" id="" v-model="get_product_sheet.squad" v-on:change="update_warehouse">
+                    {% for squad in squads %}
+                    <option value="{{squad.id}}">{{squad.name}}</option>
+                    {% endfor %}
+                </select></td></tr>
+                <tr>
+                    <td> 
+                        <label for="warehouse" >倉庫:</label>
+                    </td>
+                    <td>
+                        <select  v-model="get_product_sheet.warehouse" >
+                            <option v-for="item in get_product_sheet.warehouses" :value="item.id" v-html="item.name"></option>
+                        </select>
+                    </td>
+                </tr>
         
                 <tr><td><label for="date">日期:</label></td><td> <input type="date" name="date"  v-model="get_product_sheet.date"></td></tr>
                 
                 
-                <tr><td><label for="warehouse">倉庫:</label></td><td> <select name="warehouse" v-model="get_product_sheet.warehouse">
-                    {% for warehouse in warehouses %}
-                    <option value="{{warehouse.id}}">{{warehouse.name}}</option>
+                <tr><td><label for="squad">出料公司:</label></td><td><select name="out_squad"  v-model="get_product_sheet.out_squad" v-on:change="update_out_warehouse">
+                    {% for squad in squads %}
+                    <option value="{{squad.id}}">{{squad.name}}</option>
                     {% endfor %}
                 </select></td></tr>
+                <tr>
+                    <td> 
+                        <label for="warehouse" >出料倉庫:</label>
+                    </td>
+                    <td>
+                        <select  v-model="get_product_sheet.out_warehouse" >
+                            <option v-for="item in get_product_sheet.out_warehouses" :value="item.id" v-html="item.name"></option>
+                        </select>
+                    </td>
+                </tr>
 
                 <tr><td colspan="2"><button class="btn btn-secondary" v-on:click="add_products">新增完工用料</button></td></tr>
                 <tr>
@@ -37,10 +59,12 @@
                 </tr>
                 
         </table>
+        <input type="checkbox" v-model="export_check"> <label >匯出excel</label><br>
         <button class="btn btn-success" v-on:click="submit">修改</button>
         </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="/static/js/update_get_product_sheet_page.js"></script>
+        <script lang="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
         {% endblock page %}

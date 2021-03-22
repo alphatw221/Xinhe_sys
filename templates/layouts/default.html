@@ -33,14 +33,18 @@
                 <div class="row" >
                     <div class="col" id ="navbar">
                         <nav class="sidenav">
-                        <a href="/worksheet_page/">新增工作聯單</a>
-                        <a href="/get_product_sheet_page/">新增領料單</a>
-                        <a href="/use_product_sheet_page/">新增完工用料單</a>
-                        <a href="/get_product_dashboard/">檢視領料單資料</a>
-                        <a href="/dashboard_page/">檢視工作單資料</a>
-                        <a href="/warehouse_page/">檢視倉庫資料</a>
-                        <a href="/xinhe_admin/">內建後台</a>
-                        <button class="btn" onclick="logout()">登出</button>
+                            <br>
+                            <br>
+
+                        <a href="/get_product_dashboard/" class="btn btn-warning">檢視領料單資料</a>
+                        <br>
+                        <a href="/dashboard_page/" class="btn btn-warning">檢視工作單資料</a>
+                        <br>
+                        <a href="/warehouse_page/" class="btn btn-warning">檢視倉庫資料</a>
+                        <br>
+                        <a href="/xinhe_admin/" class="btn btn-warning">內建後台</a>
+                        <br>
+                        <button class="btn btn-outline-danger" onclick="logout()">登出</button>
                         </nav>
                     </div>
                 {% block page %}

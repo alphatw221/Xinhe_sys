@@ -174,10 +174,9 @@ def update_get_product_sheet_page(request,id):
         token=Token.objects.get(key=key)
     except Token.DoesNotExist:
         return render(request,'login_page.html')
-    get_product_sheet=GetProductSheet.objects.get(id=id)
-    warehouses=get_product_sheet.squad.warehouses.all()
+    
     context={
-    'warehouses':warehouses}
+    'squads':Squad.objects.all()}
     return render(request,'pages/update_get_product_sheet_page.html',context)
 
 def warehouse_page(request):
@@ -437,16 +436,59 @@ class GetProductSheetDetails(APIView):
 
     def get(self,request,id):
         get_product_sheet=self.get_object(id)
-        serializer=GetProductSheetSerializer(get_product_sheet)
-        return Response(serializer.data)
+        products=[]
+        
+        for x in get_product_sheet.get_product_sheet_productss.all():
+            products.append({
+                'product':x.product.id,
+                'name':x.product.name,
+                'code':x.product.code,
+                'amount':x.amount,
+                'unit':x.product.unit
+            })
+        data={
+                'get_product_sheet':{
+                    'id':get_product_sheet.id,
+                    'serial_number':get_product_sheet.serial_number,
+                    'squad':get_product_sheet.squad.id,
+                    'date':get_product_sheet.date,
+                    'warehouse':get_product_sheet.warehouse.id,
+                    'warehouses':WarehouseSerializer(get_product_sheet.squad.warehouses,many=True).data,
+                    'out_squad':get_product_sheet.out_warehouse.squad.id,
+                    'out_warehouse':get_product_sheet.out_warehouse.id,
+                    'out_warehouses':WarehouseSerializer(get_product_sheet.out_warehouse.squad.warehouses,many=True).data,
+                },
+                'products':products 
+            }
+        return Response(data)
 
     def put(self,request,id):
         get_product_sheet=self.get_object(id)
-        serializer=GetProductSheetSerializer(get_product_sheet,data=request.data)
-        if serializer.is_valid():
+        serializer=GetProductSheetSerializer(get_product_sheet,data=request.data['get_product_sheet'])
+        serializer2=GetProductSheetProductsSerializer(data=request.data['get_product_sheet_productss'],many=True)
+        if serializer.is_valid() and serializer2.is_valid():
+            get_product_sheet.get_product_sheet_productss.all().delete()
             serializer.save()
-            content={'s':1,'message':'更新成功','data':serializer.data}
+            serializer2.save()
+            get_product_sheet=self.get_object(id)
+            sheet_excel={'serial_number':get_product_sheet.serial_number,
+                'squad':get_product_sheet.squad.name,
+                'warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['warehouse']).name,
+                'date':get_product_sheet.date,
+                'out_squad':Squad.objects.get(id=request.data['get_product_sheet']['out_squad']).name,
+                'out_warehouse':Warehouse.objects.get(id=request.data['get_product_sheet']['out_warehouse']).name}
+            productss_excel=[]
+            productss=request.data['get_product_sheet_productss']
+            for products in productss:
+                product=Product.objects.get(id=products['product'])
+                productss_excel.append({'code':product.code,
+                                    'name':product.name,
+                                    'amount':products['amount'],
+                                    'unit':product.unit,})
+            content={'s':1,'message':'新增成功','data':{'get_product_sheet':sheet_excel,'get_product_sheet_productss':productss_excel}}
             return Response(content)
+        print(serializer.errors)
+        print(serializer2.errors)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self,request,id):

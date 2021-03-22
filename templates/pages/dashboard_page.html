@@ -4,7 +4,9 @@
 <div class="col-11 main" v-on:scroll="scrolled">
 <h1>工作單查詢</h1>
     <div  id="dashboard" >
+    <button v-on:click="new_worksheet" class="btn btn-primary" style="float: right;margin-right: 5%;">新增工作單</button>
     
+    <button v-on:click="new_use_product_sheet" class="btn btn-success" style="float: right;margin-right: 1%;">新增完工單</button>
     <div class="filter_bar" name="filter_bar" >
         <h3>篩選條件:</h3>
         <label for="serial_number">單號:</label>
@@ -97,7 +99,7 @@
                 <td>
                     <span>日期:</span>
                 </td>
-                <td colspan="2"></td>
+                <td colspan="3"></td>
             </tr>
         </thead>
         <tbody  v-for="worksheet in worksheets" v-if="!isFetching">

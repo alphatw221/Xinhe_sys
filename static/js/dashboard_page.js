@@ -94,5 +94,11 @@ var worksheet = new Vue({
                     this.use_product_sheets.splice(index,1)
                 }) .catch(err => { console.error(err);  })
         },
+        new_worksheet(){
+            window.open('/worksheet_page/')
+        },
+        new_use_product_sheet(){
+            window.open('/use_product_sheet_page/')
+        }
     }
 })

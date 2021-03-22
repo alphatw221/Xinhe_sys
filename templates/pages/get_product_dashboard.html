@@ -4,7 +4,7 @@
 <div class="col-11 main" v-on:scroll="scrolled">
 <h1>領料單查詢</h1>
     <div  id="get_product_dashboard" >
-    
+    <button v-on:click="new_get_product_sheet" class="btn btn-primary" style="margin-right: 5%;float: right;">新增領料單</button>
     <div class="filter_bar" name="filter_bar" >
         <h3>篩選條件:</h3>
         <label for="serial_number">單號:</label>
@@ -52,7 +52,7 @@
                     <span>日期:</span>
                 </td>
                
-                <td colspan="2"></td>
+                <td colspan="3"></td>
             </tr>
         </thead>
         <tbody  v-for="get_product_sheet in get_product_sheets" v-if="!isFetching">

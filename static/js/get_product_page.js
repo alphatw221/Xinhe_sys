@@ -155,6 +155,7 @@ var worksheet = new Vue({
             excel += '<tr></tr>'
             excel += '<tr><td>領料人簽名:</td><td>___________________</td></tr>'
             excel += '<tr><th>___________________________________________________________________________________________________________________________________</th></tr>'
+            excel += '<tr></tr>'
             excel += '<tr><th>領料單</th></tr>'
             excel += '<tr><td>單號</td><td>'+sheet.serial_number+'</td></tr>'
             excel += '<tr><td>工班</td><td>'+sheet.squad+'</td></tr>'

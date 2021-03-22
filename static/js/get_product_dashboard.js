@@ -84,5 +84,8 @@ var worksheet = new Vue({
                 console.log('ok')
             }).catch(err => { console.error(err);   })
         },
+        new_get_product_sheet(){
+            window.open('/get_product_sheet_page/')
+        }
     }
 })
