@@ -1049,11 +1049,11 @@ class GetWarehouseInOut(APIView):
         products_id=request.data['ids']
         warehouse=Warehouse.objects.get(id=id)
         for product_id in products_id:
-            get_productss=warehouse.get_product_sheet_productss.filter(product=product_id).order_by('date')
+            get_productss=warehouse.get_product_sheet_productss.filter(product=Product.objects.get(id=product_id)).order_by('date')
             get_productss_total=get_productss.aggregate(Sum('amount'))
-            use_productss=warehouse.use_product_sheet_productss.filter(product=product_id).order_by('date')
+            use_productss=warehouse.use_product_sheet_productss.filter(product=Product.objects.get(id=product_id)).order_by('date')
             use_productss_total=use_productss.aggregate(Sum('amount'))
-            out_productss=warehouse.out_productss.filter(product=product_id).order_by('date')
+            out_productss=warehouse.out_productss.filter(product=Product.objects.get(id=product_id)).order_by('date')
             out_productss_total=out_productss.aggregate(Sum('amount'))
             inout[product_id]=self.merge(get_productss,use_productss,out_productss)
             total[product_id]=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
@@ -1134,9 +1134,9 @@ class GetAllWarehouseTotal(APIView):
         for product in products:
             product2warehouse[product.code]={}
             for warehouse in warehouses:
-                get_productss_total=warehouse.get_product_sheet_productss.filter(product=product.id).aggregate(Sum('amount'))
-                use_productss_total=warehouse.use_product_sheet_productss.filter(product=product.id).aggregate(Sum('amount'))
-                out_productss_total=warehouse.out_productss.filter(product=product.id).aggregate(Sum('amount'))
+                get_productss_total=warehouse.get_product_sheet_productss.filter(product=product).aggregate(Sum('amount'))
+                use_productss_total=warehouse.use_product_sheet_productss.filter(product=product).aggregate(Sum('amount'))
+                out_productss_total=warehouse.out_productss.filter(product=product).aggregate(Sum('amount'))
                 total=int(0 if get_productss_total['amount__sum'] is None else get_productss_total['amount__sum'])-int(0 if use_productss_total['amount__sum'] is None else use_productss_total['amount__sum'])-int(0 if out_productss_total['amount__sum'] is None else out_productss_total['amount__sum'])
                 product2warehouse[product.code][warehouse.id]=total
         data['product2warehouse']=product2warehouse

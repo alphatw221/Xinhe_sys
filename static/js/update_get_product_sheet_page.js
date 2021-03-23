@@ -32,6 +32,7 @@ var worksheet = new Vue({
                     warehouse:this.get_product_sheet.warehouse,
                     date:this.get_product_sheet.date,
                     get_product_sheet:this.get_product_sheet.id,
+                    out_warehouse:this.get_product_sheet.out_warehouse,
                     })
             }
             axios.put('/get_product_sheet_detail/'+this.get_product_sheet.id,{get_product_sheet:this.get_product_sheet,get_product_sheet_productss:data})
