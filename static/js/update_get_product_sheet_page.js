@@ -89,7 +89,7 @@ var worksheet = new Vue({
         excel += '<tr><td>發料倉庫</td><td>'+sheet.out_warehouse+'</td></tr>'
         excel += '<tr><td>日期</td><td>'+sheet.date+'</td></tr>'
         excel += '<tr><th>料號</th><th>料名</th> <th></th><th></th> <th>數量</th><th>單位</th></tr>'
-        for (i=0;i<12;i++){
+        for (i=0;i<10;i++){
           if(productss[i]){
             excel += '<tr><td>'+productss[i].code+'</td>'
             excel += '<td>'+productss[i].name+'</td><td></td><td></td>'
@@ -101,7 +101,9 @@ var worksheet = new Vue({
           
         }
         excel += '<tr></tr>'
+        excel += '<tr></tr>'
         excel += '<tr><td>發料人簽名:</td><td>___________________</td></tr>'
+        excel += '<tr></tr>'
         excel += '<tr></tr>'
         excel += '<tr><td>領料人簽名:</td><td>___________________</td></tr>'
         excel += '<tr><th>______________________________________________________________________</th></tr>'
@@ -114,7 +116,7 @@ var worksheet = new Vue({
         excel += '<tr><td>發料倉庫</td><td>'+sheet.out_warehouse+'</td></tr>'
         excel += '<tr><td>日期</td><td>'+sheet.date+'</td></tr>'
         excel += '<tr><th>料號</th><th>料名</th> <th></th><th></th> <th>數量</th><th>單位</th></tr>'
-        for (i=0;i<12;i++){
+        for (i=0;i<10;i++){
           if(productss[i]){
             excel += '<tr><td>'+productss[i].code+'</td>'
             excel += '<td>'+productss[i].name+'</td><td></td><td></td>'
@@ -126,7 +128,9 @@ var worksheet = new Vue({
           }
         }
         excel += '<tr></tr>'
+        excel += '<tr></tr>'
         excel += '<tr><td>發料人簽名:</td><td>___________________</td></tr>'
+        excel += '<tr></tr>'
         excel += '<tr></tr>'
         excel += '<tr><td>領料人簽名:</td><td>___________________</td></tr>'
         excel+='</table>'
@@ -134,7 +138,7 @@ var worksheet = new Vue({
         objE.innerHTML = excel
         var sheet = XLSX.utils.table_to_sheet(objE.childNodes[0], { raw: true })// 將一個table對象轉換成一個sheet對象,raw爲true的作用是把數字當成string,身份證不轉換成科學計數法
         this.openDownloadDialog(this.sheet2blob(sheet, '領貨單'), file_name)
-        this.export_data.get_product_sheet_productss.splice(0,12)
+        this.export_data.get_product_sheet_productss.splice(0,10)
         if (this.export_data.get_product_sheet_productss.length>0){
           this.export()
         }
